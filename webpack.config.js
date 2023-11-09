@@ -19,8 +19,8 @@ module.exports = {
         use: ["style-loader", "css-loader"],
       },
       {
-        test: /\.html$/,
-        use: "html-loader",
+        test: /\.html$/i,
+        loader: "html-loader",
       },
     ],
   },

@@ -2,7 +2,7 @@ import DOMPurify from 'dompurify';
 
 type Route = {
   path: string;
-  view: () => string;
+  view: () => Promise<{ default: string }>;
 };
 
 const navigateTo = (url: string) => {
@@ -11,9 +11,21 @@ const navigateTo = (url: string) => {
 };
 
 const routes: Route[] = [
-  { path: "/", view: () => "<h1>Home</h1>" },
-  { path: "/about", view: () => "<h1>About</h1>" },
-  // Add more routes here
+  {
+    path: "/",
+    view: () =>
+      import("./src/app/home/home").then((module) => ({
+        default: module.default,
+      })),
+  },
+  {
+    path: "/about",
+    view: () =>
+      import("./src/app/about/about").then((module) => ({
+        default: module.default,
+      })),
+  },
+  // Add more lazy-loaded routes here
 ];
 
 const router = async () => {
@@ -27,7 +39,6 @@ const router = async () => {
 
   let match = potentialMatches.find((potentialMatch) => potentialMatch.isMatch);
 
-  // Fallback to the first route if no match found
   if (!match) {
     match = {
       route: routes[0],
@@ -35,8 +46,11 @@ const router = async () => {
     };
   }
 
-  const safeHTML = DOMPurify.sanitize(match.route.view());
-  document.getElementById("app")!.innerHTML = safeHTML;
+  // Now `view()` returns a promise because of dynamic import
+  match.route.view().then((module) => {
+    const safeHTML = DOMPurify.sanitize(module.default);
+    document.getElementById("app")!.innerHTML = safeHTML;
+  });
 };
 
 window.addEventListener("popstate", router);
@@ -51,3 +65,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   router();
 });
+
+// Utility function to load HTML content from a file
+function loadHtml(path: string): Promise<string | void> {
+  return fetch(path)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.text();
+    })
+    .catch((error) => {
+      console.error("Error fetching the HTML file:", error);
+    });
+}
