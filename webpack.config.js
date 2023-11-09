@@ -36,6 +36,7 @@ module.exports = {
     static: {
       directory: path.join(__dirname, "dist"),
     },
+    historyApiFallback: true, // Guarantee that index.html will always be returned for any page
     open: true, // Open the browser after server had been started
   },
 };

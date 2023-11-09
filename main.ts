@@ -46,12 +46,32 @@ const router = async () => {
     };
   }
 
-  // Now `view()` returns a promise because of dynamic import
-  match.route.view().then((module) => {
-    const safeHTML = DOMPurify.sanitize(module.default);
-    document.getElementById("app")!.innerHTML = safeHTML;
-  });
+  //  `view()` returns a promise because of dynamic import
+  match.route
+    .view()
+    .then((module) => {
+      const safeHTML = DOMPurify.sanitize(module.default);
+      document.getElementById("app")!.innerHTML = safeHTML;
+    })
+    .catch((error) => {
+      // Handle loading errors (e.g., show a 404 error message or a fallback view)
+      console.error("Error while loading the route view:", error);
+      document.getElementById("app")!.innerHTML = "Error loading the view.";
+    });
 };
+
+window.addEventListener("pagehide", (event) => {
+  if (event.persisted) {
+    // Page is being cached
+  }
+});
+
+window.addEventListener("pageshow", (event) => {
+  if (event.persisted) {
+    // Page is restored from the cache
+    router(); // Re-run the router or perform necessary updates
+  }
+});
 
 window.addEventListener("popstate", router);
 
@@ -65,17 +85,3 @@ document.addEventListener("DOMContentLoaded", () => {
 
   router();
 });
-
-// Utility function to load HTML content from a file
-function loadHtml(path: string): Promise<string | void> {
-  return fetch(path)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return response.text();
-    })
-    .catch((error) => {
-      console.error("Error fetching the HTML file:", error);
-    });
-}
