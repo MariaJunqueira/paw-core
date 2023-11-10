@@ -1,5 +1,8 @@
 // src/utils/parseRouteParams.js
-export const parseRouteParams = (routePattern, urlPath) => {
+export const parseRouteParams = (
+  routePattern: string,
+  urlPath: string
+): Record<string, string> | null => {
   const routeParts = routePattern.split("/").filter((part) => part !== "");
   const pathParts = urlPath.split("/").filter((part) => part !== "");
   if (routeParts.length !== pathParts.length) {

@@ -1,8 +1,8 @@
 export type Route = {
-  path: RegExp | string;
-  view?: (params?: any) => Promise<string>;
-  redirectTo?: string;
-  kitties?: Route[];
+  path: string; // Path of the route
+  view?: (params?: any) => Promise<string>; // The view function that returns the component as a string
+  redirectTo?: string; // URL to redirect to (for fallback routes)
+  kitties?: Route[]; // Subroutes
 };
 
 const routes: Route[] = [
