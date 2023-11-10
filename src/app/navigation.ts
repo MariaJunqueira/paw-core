@@ -20,6 +20,7 @@ export const router = async () => {
     .find((potentialMatch) => potentialMatch.isMatch);
 
   if (!match) {
+    //TODO: Handle better with not found route
     return navigateTo("/404");
   }
 
