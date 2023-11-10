@@ -18,6 +18,8 @@ export class HomeComponent extends HTMLElement {
 
     // Append the <style> element to the component
     this.appendChild(style);
+
+    this.loadAboutComponent();
   }
 
   // A method to prefix all CSS selectors with the custom element tag name
@@ -26,6 +28,15 @@ export class HomeComponent extends HTMLElement {
       /(^|\s+)([a-z0-9\[\]\=\"\:\-\_\.]+)(\s*{)/gi,
       `$1${tagName} $2$3`
     );
+  }
+
+  async loadAboutComponent() {
+    // Dynamically import the AboutComponent
+    const { AboutComponent } = await import("../about/about.component");
+    if (!customElements.get("about-component")) {
+      customElements.define("about-component", AboutComponent);
+    }
+    // At this point, any <about-component> elements in the DOM will be upgraded
   }
 }
 
