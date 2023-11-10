@@ -25,6 +25,10 @@ const routes: Route[] = [
         () => `<about-component></about-component>`
       ),
   },
+  {
+    path: "/404", // Fallback route
+    view: () => Promise.resolve("<div>Page not found</div>"),
+  },
   // ... other routes
 ];
 

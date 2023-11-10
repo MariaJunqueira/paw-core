@@ -11,7 +11,7 @@ export const router = async () => {
     .map((route) => {
       const params = parseRouteParams(route.path, location.pathname);
 
-      if (Object.keys(params).length > 0 || location.pathname === route.path) {
+      if (params) {
         return { route, isMatch: true, params };
       }
 
@@ -20,7 +20,7 @@ export const router = async () => {
     .find((potentialMatch) => potentialMatch.isMatch);
 
   if (!match) {
-    match = { route: routes[0], isMatch: true, params: {} };
+    return navigateTo("/404");
   }
 
   const viewHTML = await match.route.view(match.params);
