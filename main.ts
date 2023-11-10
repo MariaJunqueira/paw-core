@@ -25,6 +25,13 @@ const routes: Route[] = [
         return `<about-component></about-component>`;
       }), // Assuming AboutComponent is already defined
   },
+  {
+    path: "/contact",
+    view: () =>
+      import("./src/app/contact/contact.component").then(() => {
+        return `<contact-component></contact-component>`;
+      }), // Assuming AboutComponent is already defined
+  },
   // ... other routes
 ];
 
