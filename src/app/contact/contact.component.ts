@@ -3,7 +3,7 @@ import templateString from './contact.component.html';
 
 const SELECTOR = "contact-component";
 export class ContactComponent extends HTMLElement {
-  static styleId = `_mp-${Date.now()}`;
+  static styleId = `_${SELECTOR}-${Date.now()}`;
 
   constructor() {
     super();

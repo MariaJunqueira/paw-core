@@ -3,7 +3,7 @@ import templateString from './about.component.html';
 
 const SELECTOR = "about-component";
 export class AboutComponent extends HTMLElement {
-  static styleId = `_mp-${Date.now()}`;
+  static styleId = `_${SELECTOR}-${Date.now()}`;
 
   constructor() {
     super();

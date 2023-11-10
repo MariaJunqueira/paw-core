@@ -3,7 +3,7 @@ import cssString from './home.component.scss';
 
 const SELECTOR = "home-component";
 export class HomeComponent extends HTMLElement {
-  static styleId = `_mp-${Date.now()}`;
+  static styleId = `_${SELECTOR}-${Date.now()}`;
 
   constructor() {
     super();
