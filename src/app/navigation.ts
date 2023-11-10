@@ -19,9 +19,9 @@ export const router = async () => {
     })
     .find((potentialMatch) => potentialMatch.isMatch);
 
-  if (!match) {
-    //TODO: Handle better with not found route
-    return navigateTo("/404");
+  if (!match?.route.view) {
+    const fallBackRoute = routes.find((route) => route.path === "*");
+    return navigateTo(fallBackRoute?.redirectTo || "/");
   }
 
   const viewHTML = await match.route.view(match.params);

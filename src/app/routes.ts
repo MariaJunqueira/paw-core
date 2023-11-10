@@ -1,6 +1,7 @@
 type Route = {
   path: RegExp | string;
-  view: (params?: any) => Promise<string>;
+  view?: (params?: any) => Promise<string>;
+  redirectTo?: string;
 };
 
 const routes: Route[] = [
@@ -26,8 +27,12 @@ const routes: Route[] = [
       ),
   },
   {
-    path: "/404", // Fallback route
+    path: "/404",
     view: () => Promise.resolve("<div>Page not found</div>"),
+  },
+  {
+    path: "*", // Fallback route
+    redirectTo: "/404",
   },
   // ... other routes
 ];
