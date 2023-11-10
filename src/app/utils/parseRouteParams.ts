@@ -1,4 +1,3 @@
-// src/utils/parseRouteParams.js
 export const parseRouteParams = (
   routePattern: string,
   urlPath: string

@@ -33,9 +33,7 @@ async function renderMatchedContent(appElement: HTMLElement, match: Match) {
   // If there's a subroute match, render its view inside the parent component's placeholder
   if (match?.route.view) {
     const subrouteViewHTML = await match.route.view(match.params);
-    const subroutePlaceholder = appElement.querySelector(
-      "#subroute-placeholder"
-    );
+    const subroutePlaceholder = appElement.querySelector("mug-router");
     if (subroutePlaceholder) {
       subroutePlaceholder.innerHTML = subrouteViewHTML;
     }

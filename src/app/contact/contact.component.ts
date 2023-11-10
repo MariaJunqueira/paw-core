@@ -85,6 +85,15 @@ export class ContactComponent extends HTMLElement {
     }
     // At this point, any <home-component> elements in the DOM will be upgraded
   }
+
+  async loadMugRouter() {
+    // Dynamically import the AboutComponent
+    const { MugRouter } = await import("../stuff/mug/mug.router");
+    if (!customElements.get("mug-router")) {
+      customElements.define("mug-router", MugRouter);
+    }
+    // At this point, any <home-component> elements in the DOM will be upgraded
+  }
 }
 
 if (!customElements.get(SELECTOR)) {
