@@ -28,7 +28,10 @@ const routes: Route[] = [
   },
   {
     path: "/404",
-    view: () => Promise.resolve("<div>Page not found</div>"),
+    view: () =>
+      import("./not-found/not-found.component").then(
+        () => `<not-found-component></not-found-component>`
+      ),
   },
   {
     path: "*", // Fallback route
