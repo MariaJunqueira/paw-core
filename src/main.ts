@@ -27,3 +27,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   router();
 });
+
+function getBasePath() {
+  // This assumes that your SPA is served from a path that matches the repository name
+  const pathArray = window.location.pathname.split("/");
+  const basePath = pathArray.length > 1 ? `/${pathArray[1]}/` : "/";
+
+  return basePath.replace("//", "/");
+}
+
+const base = document.createElement("base");
+base.href = getBasePath();
+document.head.prepend(base);
