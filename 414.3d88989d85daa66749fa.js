@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkmeowpaw=self.webpackChunkmeowpaw||[]).push([[414],{414:(e,t,s)=>{s.d(t,{MugRouter:()=>c});const u="mug-router";class c extends HTMLElement{static styleId=`_${u}-${Date.now()}`;constructor(){super()}}customElements.get(u)||customElements.define(u,c)}}]);
