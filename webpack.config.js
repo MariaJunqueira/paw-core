@@ -69,6 +69,7 @@ module.exports = {
       patterns: [
         { from: "./src/favicon.ico", to: "favicon.ico" }, // Adjust the path as necessary
         { from: "./src/assets", to: "assets" }, // Adjust the path as necessary
+        { from: "./robots.txt", to: "robots.txt" }, // Adjust the path as necessary
       ],
     }),
   ],
