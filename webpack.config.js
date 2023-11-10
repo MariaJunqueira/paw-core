@@ -1,9 +1,13 @@
 const path = require("path");
+
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const glob = require("glob");
+const { PurgeCSSPlugin } = require("purgecss-webpack-plugin");
 
 module.exports = {
-  entry: "./main.ts",
+  entry: "./src/main.ts",
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "[name].[contenthash].js",
@@ -51,9 +55,13 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: "./index.html",
+      template: "./src/index.html",
     }),
     new MiniCssExtractPlugin({}),
+    new PurgeCSSPlugin({
+      paths: glob.sync(`${path.join(__dirname, "src")}/**/*`, { nodir: true }),
+      // Add other PurgeCSS options here if needed
+    }),
   ],
   devServer: {
     static: {

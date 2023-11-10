@@ -7,6 +7,6 @@
     "sourceMap": true,
     "outDir": "dist"
   },
-  "include": ["main.ts", "custom.d.ts", "src/**/*"],
+  "include": ["custom.d.ts", "src/**/*"],
   "exclude": ["node_modules", "dist"]
 }

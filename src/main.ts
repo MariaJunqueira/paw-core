@@ -14,21 +14,21 @@ const routes: Route[] = [
   {
     path: "/",
     view: () =>
-      import("./src/app/home/home.component").then(() => {
+      import("./app/home/home.component").then(() => {
         return `<home-component></home-component>`;
       }), // Assuming HomeComponent is already defined
   },
   {
     path: "/about",
     view: () =>
-      import("./src/app/about/about.component").then(() => {
+      import("./app/about/about.component").then(() => {
         return `<about-component></about-component>`;
       }), // Assuming AboutComponent is already defined
   },
   {
     path: "/contact",
     view: () =>
-      import("./src/app/contact/contact.component").then(() => {
+      import("./app/contact/contact.component").then(() => {
         return `<contact-component></contact-component>`;
       }), // Assuming AboutComponent is already defined
   },
