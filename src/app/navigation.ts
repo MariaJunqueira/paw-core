@@ -1,4 +1,5 @@
 import routes from './routes';
+import { parseRouteParams } from './utils/parseRouteParams';
 
 export const navigateTo = (url: string) => {
   history.pushState(null, "", url);
@@ -6,25 +7,23 @@ export const navigateTo = (url: string) => {
 };
 
 export const router = async () => {
-  // Test each route for potential match
-  const potentialMatches = routes.map((route) => {
-    return {
-      route: route,
-      isMatch: location.pathname === route.path,
-    };
-  });
+  let match = routes
+    .map((route) => {
+      const params = parseRouteParams(route.path, location.pathname);
 
-  let match = potentialMatches.find((potentialMatch) => potentialMatch.isMatch);
+      if (Object.keys(params).length > 0 || location.pathname === route.path) {
+        return { route, isMatch: true, params };
+      }
+
+      return { route, isMatch: false, params: {} };
+    })
+    .find((potentialMatch) => potentialMatch.isMatch);
 
   if (!match) {
-    match = {
-      route: routes[0],
-      isMatch: true,
-    };
+    match = { route: routes[0], isMatch: true, params: {} };
   }
 
-  // Assuming `view()` now just returns the custom element's HTML string
-  const viewHTML = await match.route.view();
+  const viewHTML = await match.route.view(match.params);
   const appElement = document.getElementById("app");
   if (appElement) appElement.innerHTML = viewHTML;
 };
