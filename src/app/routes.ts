@@ -1,7 +1,8 @@
-type Route = {
+export type Route = {
   path: RegExp | string;
   view?: (params?: any) => Promise<string>;
   redirectTo?: string;
+  kitties?: Route[];
 };
 
 const routes: Route[] = [
@@ -18,6 +19,15 @@ const routes: Route[] = [
       import("./contact/contact.component").then(
         () => `<contact-component></contact-component>`
       ), // Assuming AboutComponent is already defined
+    kitties: [
+      {
+        path: "/email",
+        view: () =>
+          import("./contact/email/email.component").then(
+            () => `<email-component></email-component>`
+          ), // Assuming AboutComponent is already defined
+      },
+    ],
   },
   {
     path: "/about/:id",

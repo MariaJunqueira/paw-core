@@ -1,4 +1,4 @@
-import routes from './routes';
+import routes, { Route } from './routes';
 import { parseRouteParams } from './utils/parseRouteParams';
 
 export const navigateTo = (url: string) => {
@@ -7,17 +7,7 @@ export const navigateTo = (url: string) => {
 };
 
 export const router = async () => {
-  let match = routes
-    .map((route) => {
-      const params = parseRouteParams(route.path, location.pathname);
-
-      if (params) {
-        return { route, isMatch: true, params };
-      }
-
-      return { route, isMatch: false, params: {} };
-    })
-    .find((potentialMatch) => potentialMatch.isMatch);
+  let match = findMatch(routes, location.pathname);
 
   if (!match?.route.view) {
     const fallBackRoute = routes.find((route) => route.path === "*");
@@ -28,3 +18,25 @@ export const router = async () => {
   const appElement = document.getElementById("app");
   if (appElement) appElement.innerHTML = viewHTML;
 };
+
+function findMatch(routeArray: Route[], pathname, basePath = "") {
+  for (const route of routeArray) {
+    // Construct the full path for the current route
+    const fullPath = `${basePath}${
+      basePath && !basePath.endsWith("/") ? "/" : ""
+    }${route.path}`;
+
+    // First, check for matching subroutes
+    if (route.kitties) {
+      const subMatch = findMatch(route.kitties, pathname, fullPath);
+      if (subMatch) return subMatch; // Return if a matching subroute is found
+    }
+
+    // Only if no subroutes match, check the current route
+    const params = parseRouteParams(fullPath, pathname);
+    if (params) {
+      return { route, params }; // Return the parent route only if no subroutes matched
+    }
+  }
+  return null; // No match found in this set of routes
+}
