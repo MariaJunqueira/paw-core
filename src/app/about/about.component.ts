@@ -3,31 +3,24 @@ import templateString from './about.component.html';
 
 const SELECTOR = "about-component";
 export class AboutComponent extends HTMLElement {
-  private uniqueId: string;
+  static styleId = `_mp-${Date.now()}`;
 
   constructor() {
     super();
 
     // Generate a unique identifier for this instance
-    this.uniqueId = `${Date.now()}`;
-    this.setAttribute(`${SELECTOR}-${this.uniqueId}`, "");
+    this.setAttribute(AboutComponent.styleId, "");
 
     // Prefix CSS selectors with the unique identifier
-    const scopedCssString = this.scopeCss(cssString, this.uniqueId);
+    const scopedCssString = this.scopeCss(cssString);
 
-    const scopedHtmlString = this.scopeHtml(templateString, this.uniqueId);
-
-    // Append the HTML content
-    this.innerHTML = scopedHtmlString;
-
-    // Append the scoped CSS
-    const style = document.createElement("style");
-    style.textContent = scopedCssString;
-    this.appendChild(style);
+    // Apply the HTML and CSS
+    this.innerHTML = this.scopeHtml(templateString);
+    AboutComponent.appendScopedStyle(scopedCssString);
   }
 
   // Scope the CSS by prefixing selectors with the unique identifier and excluding nested custom elements
-  scopeCss(css, uniqueId) {
+  scopeCss(css) {
     return css.replace(
       /([^\r\n,{}]+)(,(?=[^}]*{)|\s*{)/g,
       (match, selector) => {
@@ -41,7 +34,7 @@ export class AboutComponent extends HTMLElement {
               return part.trim();
             }
             // Otherwise, apply the unique ID scoping
-            return `${part.trim()}[${SELECTOR}-${uniqueId}] `;
+            return `${part.trim()}[${AboutComponent.styleId}] `;
           })
           .join(", ");
         return `${scopedSelector} ${match.endsWith(",") ? "," : " {"}`;
@@ -50,7 +43,7 @@ export class AboutComponent extends HTMLElement {
   }
 
   // Method to add the unique ID to all elements in the HTML string
-  scopeHtml(html, uniqueId) {
+  scopeHtml(html) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
     // Iterate over all elements
@@ -58,10 +51,19 @@ export class AboutComponent extends HTMLElement {
       // Check if the element is a custom element (has a hyphen in the tag name)
       if (!el.tagName.includes("-")) {
         // Apply the unique ID only to non-custom elements
-        el.setAttribute(`${SELECTOR}-${uniqueId}`, "");
+        el.setAttribute(AboutComponent.styleId, "");
       }
     });
     return doc.body.innerHTML;
+  }
+
+  static appendScopedStyle(scopedCssString) {
+    if (!document.head.querySelector(`#${this.styleId}`)) {
+      const styleTag = document.createElement("style");
+      styleTag.id = this.styleId;
+      styleTag.textContent = scopedCssString;
+      document.head.appendChild(styleTag);
+    }
   }
 }
 
