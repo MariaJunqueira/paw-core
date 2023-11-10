@@ -128,11 +128,16 @@ table {
   border-spacing: 0;
 }
 
-h1 {
-  background: #f5f5f0;
+nav {
+  padding: 20px;
+  border-bottom: 1px solid #000;
+
+  > a {
+    margin-right: 20px;
+  }
 }
 
-section {
-  border: 1px solid purple;
+h1 {
+  font-size: 3.5rem;
 }
 
