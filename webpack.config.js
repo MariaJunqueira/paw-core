@@ -1,5 +1,7 @@
 const path = require("path");
 
+const CopyPlugin = require("copy-webpack-plugin");
+
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
@@ -61,6 +63,12 @@ module.exports = {
     new PurgeCSSPlugin({
       paths: glob.sync(`${path.join(__dirname, "src")}/**/*`, { nodir: true }),
       // Add other PurgeCSS options here if needed
+    }),
+    new CopyPlugin({
+      patterns: [
+        { from: "./src/favicon.ico", to: "favicon.ico" }, // Adjust the path as necessary
+        { from: "./src/assets", to: "assets" }, // Adjust the path as necessary
+      ],
     }),
   ],
   devServer: {
