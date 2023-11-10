@@ -1,5 +1,7 @@
-import cssString from './home.component.css';
 import templateString from './home.component.html';
+import cssString from './home.component.scss';
+
+console.log(cssString);
 
 const SELECTOR = "home-component";
 export class HomeComponent extends HTMLElement {

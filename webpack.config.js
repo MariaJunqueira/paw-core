@@ -17,6 +17,17 @@ module.exports = {
         exclude: /node_modules/,
       },
       {
+        test: /\.scss$/i,
+        exclude: path.resolve(__dirname, "src/app"),
+        use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
+      },
+      {
+        test: /\.scss$/i,
+        include: path.resolve(__dirname, "src/app"),
+        type: "asset/source",
+        use: ["sass-loader"],
+      },
+      {
         test: /\.css$/i,
         exclude: path.resolve(__dirname, "src/app"), // Exclude CSS from src/app
         use: [MiniCssExtractPlugin.loader, "css-loader"],
