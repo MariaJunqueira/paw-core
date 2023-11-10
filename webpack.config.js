@@ -3,11 +3,11 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
-  entry: "./main.ts", // Your entry point, make sure it's correct
+  entry: "./main.ts",
   output: {
     path: path.resolve(__dirname, "dist"),
-    filename: "[name].[contenthash].js", // Use contenthash to enable long-term caching
-    clean: true, // Clean the output directory before emit
+    filename: "[name].[contenthash].js",
+    clean: true,
   },
   module: {
     rules: [
@@ -17,30 +17,39 @@ module.exports = {
         exclude: /node_modules/,
       },
       {
-        test: /\.css$/,
+        test: /\.css$/i,
+        exclude: path.resolve(__dirname, "src/app"), // Exclude CSS from src/app
         use: [MiniCssExtractPlugin.loader, "css-loader"],
+      },
+      {
+        test: /\.css$/i,
+        include: path.resolve(__dirname, "src/app"), // Include only CSS from src/app
+        type: "asset/source",
       },
       {
         test: /\.html$/i,
         loader: "html-loader",
+        options: {
+          sources: false,
+        },
       },
     ],
   },
   resolve: {
-    extensions: [".tsx", ".ts", ".js"], // Add '.js' if you have JavaScript files
+    extensions: [".tsx", ".ts", ".js"],
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: "./index.html", // Path to your HTML entry point
+      template: "./index.html",
     }),
-    new MiniCssExtractPlugin(),
+    new MiniCssExtractPlugin({}),
   ],
   devServer: {
     static: {
       directory: path.join(__dirname, "dist"),
     },
-    historyApiFallback: true, // Guarantee that index.html will always be returned for any page
-    open: true, // Open the browser after server had been started
+    historyApiFallback: true,
+    open: true,
     headers: {
       "Cache-Control": "max-age=31536000",
     },

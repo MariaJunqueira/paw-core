@@ -1,3 +1,5 @@
+import './styles.css';
+
 type Route = {
   path: string;
   view: () => Promise<string>;
@@ -12,14 +14,14 @@ const routes: Route[] = [
   {
     path: "/",
     view: () =>
-      import("./src/app/home/home").then(() => {
+      import("./src/app/home/home.component").then(() => {
         return `<home-component></home-component>`;
       }), // Assuming HomeComponent is already defined
   },
   {
     path: "/about",
     view: () =>
-      import("./src/app/about/about").then(() => {
+      import("./src/app/about/about.component").then(() => {
         return `<about-component></about-component>`;
       }), // Assuming AboutComponent is already defined
   },
