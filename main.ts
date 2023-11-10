@@ -1,8 +1,6 @@
-import DOMPurify from 'dompurify';
-
 type Route = {
   path: string;
-  view: () => Promise<{ default: string }>;
+  view: () => Promise<string>;
 };
 
 const navigateTo = (url: string) => {
@@ -14,18 +12,18 @@ const routes: Route[] = [
   {
     path: "/",
     view: () =>
-      import("./src/app/home/home").then((module) => ({
-        default: module.default,
-      })),
+      import("./src/app/home/home").then(() => {
+        return `<home-component></home-component>`;
+      }), // Assuming HomeComponent is already defined
   },
   {
     path: "/about",
     view: () =>
-      import("./src/app/about/about").then((module) => ({
-        default: module.default,
-      })),
+      import("./src/app/about/about").then(() => {
+        return `<about-component></about-component>`;
+      }), // Assuming AboutComponent is already defined
   },
-  // Add more lazy-loaded routes here
+  // ... other routes
 ];
 
 const router = async () => {
@@ -46,18 +44,10 @@ const router = async () => {
     };
   }
 
-  //  `view()` returns a promise because of dynamic import
-  match.route
-    .view()
-    .then((module) => {
-      const safeHTML = DOMPurify.sanitize(module.default);
-      document.getElementById("app")!.innerHTML = safeHTML;
-    })
-    .catch((error) => {
-      // Handle loading errors (e.g., show a 404 error message or a fallback view)
-      console.error("Error while loading the route view:", error);
-      document.getElementById("app")!.innerHTML = "Error loading the view.";
-    });
+  // Assuming `view()` now just returns the custom element's HTML string
+  const viewHTML = await match.route.view();
+  const appElement = document.getElementById("app");
+  if (appElement) appElement.innerHTML = viewHTML;
 };
 
 window.addEventListener("pagehide", (event) => {
