@@ -1,5 +1,4 @@
 import routes, { Route } from './routes';
-import { parseRouteParams } from './utils/parseRouteParams';
 
 export const navigateTo = (url: string) => {
   history.pushState(null, "", url);
@@ -7,9 +6,10 @@ export const navigateTo = (url: string) => {
 };
 
 export const router = async () => {
-  let match = findMatch(routes, location.pathname);
+  const pathname = location.pathname;
+  let match = findMatch(allRoutes, pathname);
 
-  if (!match?.route.view) {
+  if (!match) {
     return navigateToFallback();
   }
 
@@ -17,46 +17,42 @@ export const router = async () => {
   if (!appElement) {
     return;
   }
+
+  // Start from the topmost parent and render downwards
   await renderMatchedContent(appElement, match);
 };
 
-async function renderMatchedContent(appElement: HTMLElement, match: Match) {
-  if (match?.parentRoute?.view) {
-    const parentHtml = await match.parentRoute.view(match.params);
-    appElement.innerHTML = parentHtml;
-  } else if (match.route.view) {
-    const innerHTML = await match.route.view(match.params);
-    appElement.innerHTML = innerHTML;
-    return;
-  }
+function findMatch(routeArray, pathname) {
+  return routeArray.find((route) => {
+    const routePattern = route.path.split("/");
+    const pathSegments = pathname.split("/");
 
-  // If there's a subroute match, render its view inside the parent component's placeholder
-  if (match?.route.view) {
-    const subrouteViewHTML = await match.route.view(match.params);
-    const subroutePlaceholder = appElement.querySelector("mug-router");
-    if (subroutePlaceholder) {
-      subroutePlaceholder.innerHTML = subrouteViewHTML;
+    if (routePattern.length !== pathSegments.length) {
+      return false; // The route and pathname have a different number of segments
     }
-  }
+
+    return routePattern.every((segment, index) => {
+      return segment.startsWith(":") || segment === pathSegments[index];
+    });
+  });
 }
 
-function findMatch(routeArray: Route[], pathname: string, basePath = "") {
-  for (const route of routeArray) {
-    const fullPath = `${basePath}${basePath.endsWith("/") ? "" : "/"}${
-      route.path
-    }`;
+async function renderMatchedContent(appElement, match) {
+  if (match?.parentRoute) {
+    // Recursively call until the topmost parent is reached
+    await renderMatchedContent(appElement, match.parentRoute);
+  }
 
-    if (route.kitties) {
-      const subMatch = findMatch(route.kitties, pathname, fullPath);
-      if (subMatch) return { ...subMatch, parentRoute: route };
-    }
-
-    const params = parseRouteParams(fullPath, pathname);
-    if (params) {
-      return { route, params };
+  // Render the current route's view inside <mug-router> or the appElement for the topmost parent
+  if (match?.route?.view) {
+    const viewHTML = await match.route.view(match.params);
+    if (match.parentRoute) {
+      const mugRouterElement = appElement.querySelectorAll("mug-router");
+      mugRouterElement[mugRouterElement.length - 1].innerHTML = viewHTML;
+    } else {
+      appElement.innerHTML = viewHTML;
     }
   }
-  return null;
 }
 
 function navigateToFallback() {
@@ -65,7 +61,36 @@ function navigateToFallback() {
 }
 
 export type Match = {
-  route: Route; // The matched route
-  params: Record<string, string>; // Parameters extracted from the URL
-  parentRoute?: Route; // The parent route if this is a subroute match
+  route: Route;
+  params: Record<string, string>;
+  parentRoute?: Match;
+  subRoute?: Match;
 };
+
+function generateRouteList(routeArray, basePath = "", parentRoute?: any) {
+  let routeList: any = [];
+
+  for (const route of routeArray) {
+    const fullPath =
+      basePath === "/" || basePath === ""
+        ? route.path
+        : `${basePath}${route.path === "/" ? "" : `${route.path}`}`;
+
+    // Construct the route object including the parent
+    const routeWithParent = { route, parentRoute };
+
+    // Add the route along with its parent
+    routeList.push({ path: fullPath, ...routeWithParent });
+
+    if (route.kitties) {
+      // Include subroutes with the current route as their parent
+      routeList = routeList.concat(
+        generateRouteList(route.kitties, fullPath, routeWithParent)
+      );
+    }
+  }
+
+  return routeList;
+}
+
+const allRoutes = generateRouteList(routes);
