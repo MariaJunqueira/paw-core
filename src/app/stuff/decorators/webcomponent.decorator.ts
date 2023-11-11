@@ -18,7 +18,7 @@ export function Component(options: any): any {
         (
           this.constructor as typeof constructor & WebComponentClass
         ).appendScopedStyle(scopedCssString, styleId);
-        // Load dynamic components
+        this.loadDynamicComponents(options.components);
       }
 
       scopeCss(css: string, styleId: string): string {
@@ -56,6 +56,20 @@ export function Component(options: any): any {
           styleTag.id = styleId;
           styleTag.textContent = scopedCssString;
           document.head.appendChild(styleTag);
+        }
+      }
+
+      loadDynamicComponents(components: Record<string, () => Promise<any>>) {
+        for (const [name, importFn] of Object.entries(components)) {
+          if (!customElements.get(name)) {
+            importFn()
+              .then((module) => {
+                customElements.define(name, module.default);
+              })
+              .catch((error) => {
+                console.error(`Error loading component '${name}':`, error);
+              });
+          }
         }
       }
     } as unknown as T;
