@@ -1,12 +1,5 @@
-const SELECTOR = "mug-router";
-export class MugRouter extends HTMLElement {
-  static styleId = `_${SELECTOR}-${Date.now()}`;
-
+export default class MugRouter extends HTMLElement {
   constructor() {
     super();
   }
-}
-
-if (!customElements.get(SELECTOR)) {
-  customElements.define(SELECTOR, MugRouter);
 }

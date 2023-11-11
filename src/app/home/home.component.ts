@@ -13,21 +13,9 @@ const componentImports = {
   styles: cssString,
   components: componentImports,
 })
-export class HomeComponent extends HTMLElement {
+export default class HomeComponent extends HTMLElement {
   constructor() {
     super();
     console.log("HomeComponent constructed!");
-
-    // Your component's constructor logic, if any
   }
-  // Your component implementation...
 }
-
-// function WebComponent(options: {}): any | void {
-//   return class extends HTMLElement {
-//     fuel: number = 50;
-//     isEmpty(): boolean {
-//       return this.fuel == 0;
-//     }
-//   };
-// }

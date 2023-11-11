@@ -1,3 +1,4 @@
+import { handleRoute } from './routeHandler';
 import routes, { Route } from './routes';
 
 export const navigateTo = (url: string) => {
@@ -17,13 +18,14 @@ export const router = async () => {
   if (!appElement) {
     return;
   }
-
   // Start from the topmost parent and render downwards
   await renderMatchedContent(appElement, match);
 };
 
 function findMatch(routeArray, pathname) {
   return routeArray.find((route) => {
+    if (route.path === pathname) return true;
+
     const routePattern = route.path.split("/");
     const pathSegments = pathname.split("/");
 
@@ -44,8 +46,8 @@ async function renderMatchedContent(appElement, match) {
   }
 
   // Render the current route's view inside <mug-router> or the appElement for the topmost parent
-  if (match?.route?.view) {
-    const viewHTML = await match.route.view(match.params);
+  if (match?.route?.componentPath) {
+    const viewHTML = await handleRoute(match.route);
     if (match.parentRoute) {
       const mugRouterElement = appElement.querySelectorAll("mug-router");
       mugRouterElement[mugRouterElement.length - 1].innerHTML = viewHTML;
