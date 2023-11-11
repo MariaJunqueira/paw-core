@@ -2,6 +2,12 @@ import templateString from './home.component.html';
 import cssString from './home.component.scss';
 
 const SELECTOR = "home-component";
+
+const componentImports = {
+  "about-component": () => import("../about/about.component"),
+  // other components...
+};
+
 export class HomeComponent extends HTMLElement {
   static styleId = `_${SELECTOR}-${Date.now()}`;
 
@@ -17,7 +23,7 @@ export class HomeComponent extends HTMLElement {
     // Apply the HTML and CSS
     this.innerHTML = this.scopeHtml(templateString);
     HomeComponent.appendScopedStyle(scopedCssString);
-    this.loadAboutComponent();
+    this.loadComponents(["about-component"]);
   }
 
   // Scope the CSS by prefixing selectors with the unique identifier and excluding nested custom elements
@@ -67,13 +73,13 @@ export class HomeComponent extends HTMLElement {
     }
   }
 
-  async loadAboutComponent() {
-    // Dynamically import the AboutComponent
-    const { AboutComponent } = await import("../about/about.component");
-    if (!customElements.get("about-component")) {
-      customElements.define("about-component", AboutComponent);
+  async loadComponents(componentNames) {
+    for (const name of componentNames) {
+      if (!customElements.get(name) && componentImports[name]) {
+        const module = await componentImports[name]();
+        customElements.define(name, module.default);
+      }
     }
-    // At this point, any <about-component> elements in the DOM will be upgraded
   }
 }
 
