@@ -42,7 +42,7 @@ export class HttpRequest {
     return this.request("POST", path, body);
   }
 
-  public delete(path: string, body: any): Promise<any> {
+  public delete(path: string): Promise<any> {
     return this.request("DELETE", path);
   }
 }
