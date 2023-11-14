@@ -10,7 +10,7 @@ export function Observed() {
       constructor.observedAttributesSet = new Set<string | symbol>();
     }
 
-    constructor.observedAttributesSet.add(propertyKey);
+    constructor.observedAttributesSet.add(`paw-${String(propertyKey)}`);
 
     // Use a private variable to store the property value
     const privatePropertyName = `_${String(propertyKey)}`;

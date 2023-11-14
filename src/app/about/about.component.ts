@@ -9,7 +9,7 @@ import templateString from './about.component.html';
   styles: cssString,
 })
 export default class AboutComponent extends HTMLElement {
-  @Observed() title: string = "pawsome";
+  @Observed() titles: string = "pawsome";
   @Observed() description: string;
   autor: string = "Azevedo";
 

@@ -62,6 +62,7 @@ export function Component(options: any): any {
       private handlePropertyChange(e: CustomEvent) {
         // Handle property change event
         this._data[e.detail.property] = e.detail.newValue;
+
         this.innerHTML = this.scopeHtml(
           options.template,
           (this.constructor as typeof constructor & WebComponentClass).styleId,
@@ -85,7 +86,10 @@ export function Component(options: any): any {
       }
 
       private definePropertyGettersAndSetters(property: string) {
+        // property = property.replace("paw-", "");
         let value = this[property];
+        console.log(property, this[property]);
+
         Object.defineProperty(this, property, {
           get: () => value,
           set: (newValue) => {
@@ -93,7 +97,11 @@ export function Component(options: any): any {
             value = newValue;
 
             if (oldValue !== newValue) {
-              this.emitPropertyChangedEvent(property, oldValue, newValue);
+              this.emitPropertyChangedEvent(
+                property.replace("paw-", ""),
+                oldValue,
+                newValue
+              );
             }
           },
           enumerable: true,

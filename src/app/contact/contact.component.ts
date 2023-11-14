@@ -16,6 +16,8 @@ const componentImports = {
   components: componentImports,
 })
 export default class ContactComponent extends HTMLElement {
+  titles: string = "titlela";
+  description: string = "description";
   constructor() {
     super();
     console.log("ContactComponent constructed!");
