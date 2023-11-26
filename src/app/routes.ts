@@ -9,43 +9,9 @@ export type Route = {
 
 const routes: Route[] = [
   {
-    path: "",
+    path: "/",
     componentName: "app-component",
     componentPath: () => import("./app.component"),
-    kitties: [
-      {
-        path: "/",
-        componentName: "home-component",
-        componentPath: () => import("./home/home.component"),
-      },
-      {
-        path: "/contact",
-        componentName: "contact-component",
-        componentPath: () => import("./contact/contact.component"),
-        kitties: [
-          {
-            path: "/email",
-            componentName: "email-component",
-            componentPath: () => import("./contact/email/email.component"),
-          },
-        ],
-      },
-      {
-        path: "/about/:id",
-        componentName: "about-component",
-        componentPath: () => import("./about/about.component"),
-      },
-      {
-        path: "/404",
-        componentName: "not-found-component",
-        componentPath: () => import("./not-found/not-found.component"),
-      },
-      // ... other routes
-    ],
-  },
-  {
-    path: "*", // Fallback route
-    redirectTo: "/404",
   },
 ];
 
