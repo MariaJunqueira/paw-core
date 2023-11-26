@@ -24,15 +24,19 @@ export function Component(options: any): any {
 
         // Copy properties from the instance to 'this'
         Object.assign(this, instance);
-        this.initializeData();
-        this.initializeStyles();
-        loadDynamicComponents(options.components);
-        this._isFullyConstructed = true;
+        this.initializeComponent();
 
         // Dynamically check and call pawInit if it exists
         if (typeof instance["pawInit"] === "function") {
           instance["pawInit"].apply(this);
         }
+      }
+
+      private initializeComponent() {
+        this.initializeData();
+        this.initializeStyles();
+        loadDynamicComponents(options.components);
+        this._isFullyConstructed = true;
       }
 
       private initializeData() {
