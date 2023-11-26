@@ -1,5 +1,15 @@
 # Meow Paw
 
+## Running commands
+
+To compile the typescript
+
+`npx tsc --watch`
+
+To run the server
+
+`npm run serve`
+
 ## Server configurations
 
 ### Webpack configuration
