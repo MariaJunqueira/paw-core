@@ -23,8 +23,9 @@ export const router = async () => {
 };
 
 function findMatch(routeArray, pathname) {
-  return routeArray.find((route) => {
-    if (route.path === pathname) return true;
+  return routeArray.findLast((route) => {
+    if (route.path === pathname || route.path === pathname.replaceAll("/", ""))
+      return true;
 
     const routePattern = route.path.split("/");
     const pathSegments = pathname.split("/");

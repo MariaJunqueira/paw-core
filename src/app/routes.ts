@@ -9,7 +9,7 @@ export type Route = {
 
 const routes: Route[] = [
   {
-    path: "/",
+    path: "",
     componentName: "app-component",
     componentPath: () => import("./app.component"),
   },
