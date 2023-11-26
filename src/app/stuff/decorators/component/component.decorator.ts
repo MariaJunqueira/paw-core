@@ -1,5 +1,6 @@
-type BaseClass = HTMLElement;
-type Constructor = { new (...args: any[]): BaseClass };
+import { scopeCss, scopeHtml } from "./component.helper";
+import { ComponentClass } from "./component.interface";
+import { Constructor } from "./component.type";
 
 export function Component(options: any): any {
   return function <
@@ -43,7 +44,7 @@ export function Component(options: any): any {
 
       private initializeData() {
         const observedAttributes = (
-          this.constructor as typeof constructor & WebComponentClass
+          this.constructor as typeof constructor & ComponentClass
         ).observedAttributesSet;
         let properties = observedAttributes
           ? Array.from(observedAttributes)
@@ -63,9 +64,9 @@ export function Component(options: any): any {
         // Handle property change event
         this._data[e.detail.property] = e.detail.newValue;
 
-        this.innerHTML = this.scopeHtml(
+        this.innerHTML = scopeHtml(
           options.template,
-          (this.constructor as typeof constructor & WebComponentClass).styleId,
+          (this.constructor as typeof constructor & ComponentClass).styleId,
           this._data
         );
       }
@@ -127,13 +128,13 @@ export function Component(options: any): any {
 
       private initializeStyles() {
         const styleId = (
-          this.constructor as typeof constructor & WebComponentClass
+          this.constructor as typeof constructor & ComponentClass
         ).styleId;
         this.setAttribute(styleId, "");
-        const scopedCssString = this.scopeCss(options.styles, styleId);
-        this.innerHTML = this.scopeHtml(options.template, styleId, this._data);
+        const scopedCssString = scopeCss(options.styles, styleId);
+        this.innerHTML = scopeHtml(options.template, styleId, this._data);
         (
-          this.constructor as typeof constructor & WebComponentClass
+          this.constructor as typeof constructor & ComponentClass
         ).appendScopedStyle(scopedCssString, styleId);
       }
 
@@ -151,40 +152,6 @@ export function Component(options: any): any {
             },
           })
         );
-      }
-
-      private scopeCss(css: string, styleId: string): string {
-        return css.replace(
-          /([^\r\n,{}]+)(,(?=[^}]*{)|\s*{)/g,
-          (match, selector) => {
-            const scopedSelector = selector
-              .split(",")
-              .map((part) => {
-                if (part.includes("-")) {
-                  return part.trim();
-                }
-                return `${part.trim()}[${styleId}]`;
-              })
-              .join(", ");
-            return `${scopedSelector} ${match.endsWith(",") ? "," : " {"}`;
-          }
-        );
-      }
-
-      private scopeHtml(html: string, styleId: string, data: any = {}): string {
-        const templatedHtml = html.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, key) => {
-          return data[key];
-        });
-
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(templatedHtml, "text/html");
-        doc.body.querySelectorAll("*").forEach((el) => {
-          if (!el.tagName.includes("-")) {
-            el.setAttribute(styleId, "");
-          }
-        });
-
-        return doc.body.innerHTML;
       }
 
       private static appendScopedStyle(
@@ -219,9 +186,4 @@ export function Component(options: any): any {
       }
     } as unknown as T;
   };
-}
-
-interface WebComponentClass {
-  appendScopedStyle: (scopedCssString: string, styleId: string) => void;
-  styleId: string;
 }
