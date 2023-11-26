@@ -1,6 +1,7 @@
 import { scopeCss, scopeHtml } from "./component.helper";
 import { ComponentClass } from "./component.interface";
 import { Constructor } from "./component.type";
+import { loadDynamicComponents } from "./dynamic-component.loader";
 
 export function Component(options: any): any {
   return function <
@@ -38,7 +39,7 @@ export function Component(options: any): any {
         super(...args);
         this.initializeData();
         this.initializeStyles();
-        this.loadDynamicComponents(options.components);
+        loadDynamicComponents(options.components);
         this._isFullyConstructed = true;
       }
 
@@ -163,25 +164,6 @@ export function Component(options: any): any {
           styleTag.id = styleId;
           styleTag.textContent = scopedCssString;
           document.head.appendChild(styleTag);
-        }
-      }
-
-      private loadDynamicComponents(
-        components: Record<string, () => Promise<any>>
-      ) {
-        if (!components) return;
-        for (const [name, importFn] of Object.entries(components)) {
-          if (!customElements.get(name)) {
-            importFn()
-              .then((module) => {
-                if (!customElements.get(name)) {
-                  customElements.define(name, module.default);
-                }
-              })
-              .catch((error) => {
-                console.error(`Error loading component '${name}':`, error);
-              });
-          }
         }
       }
     } as unknown as T;
