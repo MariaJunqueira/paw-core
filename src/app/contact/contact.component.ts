@@ -1,6 +1,6 @@
-import { Component } from '../stuff/decorators/webcomponent.decorator';
-import cssString from './contact.component.css';
-import templateString from './contact.component.html';
+import { Component } from "../stuff/decorators/component/component.decorator";
+import cssString from "./contact.component.css";
+import templateString from "./contact.component.html";
 
 const componentImports = {
   "about-component": () => import("../about/about.component"),

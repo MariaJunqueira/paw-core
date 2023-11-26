@@ -1,6 +1,6 @@
-import { Component } from '../stuff/decorators/webcomponent.decorator';
-import cssString from './not-found.component.css';
-import templateString from './not-found.component.html';
+import { Component } from "../stuff/decorators/component/component.decorator";
+import cssString from "./not-found.component.css";
+import templateString from "./not-found.component.html";
 
 @Component({
   selector: "not-found-component",

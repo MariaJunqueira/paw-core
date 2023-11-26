@@ -1,6 +1,6 @@
-import { Component } from '../../stuff/decorators/webcomponent.decorator';
-import cssString from './email.component.css';
-import templateString from './email.component.html';
+import { Component } from "../../stuff/decorators/component/component.decorator";
+import cssString from "./email.component.css";
+import templateString from "./email.component.html";
 
 @Component({
   selector: "email-component",
