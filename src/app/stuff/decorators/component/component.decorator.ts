@@ -16,25 +16,6 @@ export function Component(options: any): any {
       private _isFullyConstructed = false;
       private _data;
 
-      static get observedAttributes() {
-        return Array.from(this.observedAttributesSet);
-      }
-
-      attributeChangedCallback(
-        name: string,
-        oldValue: string,
-        newValue: string
-      ) {
-        // Defer execution until the component is fully constructed
-        if (this._isFullyConstructed) {
-          if (this.hasOwnProperty(name)) {
-            this[name] = newValue;
-          }
-
-          this.dispatchPropertyChangedEvent(name, oldValue, newValue);
-        }
-      }
-
       constructor(...args: any) {
         super(...args);
         this.initializeData();
@@ -88,10 +69,7 @@ export function Component(options: any): any {
       }
 
       private definePropertyGettersAndSetters(property: string) {
-        // property = property.replace("paw-", "");
         let value = this[property];
-        console.log(property, this[property]);
-
         Object.defineProperty(this, property, {
           get: () => value,
           set: (newValue) => {
@@ -99,11 +77,7 @@ export function Component(options: any): any {
             value = newValue;
 
             if (oldValue !== newValue) {
-              this.emitPropertyChangedEvent(
-                property.replace("paw-", ""),
-                oldValue,
-                newValue
-              );
+              this.emitPropertyChangedEvent(property, oldValue, newValue);
             }
           },
           enumerable: true,
@@ -153,6 +127,25 @@ export function Component(options: any): any {
             },
           })
         );
+      }
+
+      static get observedAttributes() {
+        return Array.from(this.observedAttributesSet);
+      }
+
+      attributeChangedCallback(
+        name: string,
+        oldValue: string,
+        newValue: string
+      ) {
+        // Defer execution until the component is fully constructed
+        if (this._isFullyConstructed) {
+          if (this.hasOwnProperty(name)) {
+            this[name] = newValue;
+          }
+
+          this.dispatchPropertyChangedEvent(name, oldValue, newValue);
+        }
       }
 
       private static appendScopedStyle(
