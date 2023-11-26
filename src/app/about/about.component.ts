@@ -8,12 +8,8 @@ import templateString from "./about.component.html";
   template: templateString,
   styles: cssString,
 })
-export default class AboutComponent extends HTMLElement {
+export default class AboutComponent {
   @Observed() titles: string = "pawsome";
   @Observed() description: string;
   autor: string = "Azevedo";
-
-  constructor() {
-    super();
-  }
 }

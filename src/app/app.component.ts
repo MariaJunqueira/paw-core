@@ -13,9 +13,8 @@ const componentImports = {
   styles: cssString,
   components: componentImports,
 })
-export default class AppComponent extends HTMLElement {
+export default class AppComponent {
   constructor() {
-    super();
     console.log("AppComponent constructed!");
   }
 }

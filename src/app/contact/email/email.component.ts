@@ -7,9 +7,8 @@ import templateString from "./email.component.html";
   template: templateString,
   styles: cssString,
 })
-export default class EmailComponent extends HTMLElement {
+export default class EmailComponent {
   constructor() {
-    super();
     console.log("EmailComponent constructed!");
   }
 }

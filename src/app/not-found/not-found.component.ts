@@ -7,9 +7,8 @@ import templateString from "./not-found.component.html";
   template: templateString,
   styles: cssString,
 })
-export default class NotFoundComponent extends HTMLElement {
+export default class NotFoundComponent {
   constructor() {
-    super();
     console.log("NotFoundComponent constructed!");
   }
 }

@@ -15,11 +15,15 @@ const componentImports = {
   styles: cssString,
   components: componentImports,
 })
-export default class HomeComponent extends HTMLElement {
+export default class HomeComponent {
   response: string = "paw";
   constructor() {
-    super();
     console.log("HomeComponent constructed!");
+  }
+
+  pawInit() {
+    console.log("HomeComponent initialized!");
+
     const httpRequest: HttpRequest = container.resolve(HttpRequest);
     httpRequest.get("https://pokeapi.co/api/v2/pokemon/1").then((response) => {
       this.response = JSON.stringify(response);

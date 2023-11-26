@@ -1,32 +1,43 @@
 import { scopeCss, scopeHtml } from "./component.helper";
-import { ComponentClass } from "./component.interface";
-import { Constructor } from "./component.type";
 import { loadDynamicComponents } from "./dynamic-component.loader";
 
+export interface ComponentClass {
+  new (...args: any[]): HTMLElement;
+  observedAttributesSet?: Set<string>;
+  appendScopedStyle: (scopedCssString: string, styleId: string) => void;
+  styleId: string;
+}
+
 export function Component(options: any): any {
-  return function <
-    T extends Constructor & {
-      observedAttributesSet?: Set<string>;
-    }
-  >(constructor: T) {
-    return class extends constructor {
+  return function <T extends ComponentClass>(OriginalClass: T) {
+    return class extends HTMLElement {
       static styleId = `_${options.selector}-${Date.now()}`;
       static observedAttributesSet =
-        constructor.observedAttributesSet || new Set();
+        OriginalClass.observedAttributesSet || new Set();
       private _isFullyConstructed = false;
       private _data;
 
       constructor(...args: any) {
-        super(...args);
+        super();
+
+        const instance = new OriginalClass(...args);
+
+        // Copy properties from the instance to 'this'
+        Object.assign(this, instance);
         this.initializeData();
         this.initializeStyles();
         loadDynamicComponents(options.components);
         this._isFullyConstructed = true;
+
+        // Dynamically check and call pawInit if it exists
+        if (typeof instance["pawInit"] === "function") {
+          instance["pawInit"].apply(this);
+        }
       }
 
       private initializeData() {
         const observedAttributes = (
-          this.constructor as typeof constructor & ComponentClass
+          this.constructor as typeof OriginalClass & ComponentClass
         ).observedAttributesSet;
         let properties = observedAttributes
           ? Array.from(observedAttributes)
@@ -48,7 +59,7 @@ export function Component(options: any): any {
 
         this.innerHTML = scopeHtml(
           options.template,
-          (this.constructor as typeof constructor & ComponentClass).styleId,
+          (this.constructor as typeof OriginalClass & ComponentClass).styleId,
           this._data
         );
       }
@@ -103,13 +114,13 @@ export function Component(options: any): any {
 
       private initializeStyles() {
         const styleId = (
-          this.constructor as typeof constructor & ComponentClass
+          this.constructor as typeof OriginalClass & ComponentClass
         ).styleId;
         this.setAttribute(styleId, "");
         const scopedCssString = scopeCss(options.styles, styleId);
         this.innerHTML = scopeHtml(options.template, styleId, this._data);
         (
-          this.constructor as typeof constructor & ComponentClass
+          this.constructor as typeof OriginalClass & ComponentClass
         ).appendScopedStyle(scopedCssString, styleId);
       }
 

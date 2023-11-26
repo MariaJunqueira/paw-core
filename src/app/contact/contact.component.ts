@@ -15,11 +15,10 @@ const componentImports = {
   styles: cssString,
   components: componentImports,
 })
-export default class ContactComponent extends HTMLElement {
+export default class ContactComponent {
   titles: string = "titlela";
   description: string = "description";
   constructor() {
-    super();
     console.log("ContactComponent constructed!");
   }
 }
