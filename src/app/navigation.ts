@@ -1,5 +1,5 @@
-import { handleRoute } from './routeHandler';
-import routes, { Route } from './routes';
+import { handleRoute } from "./routeHandler";
+import routes, { Route } from "./routes";
 
 export const navigateTo = (url: string) => {
   history.pushState(null, "", url);
@@ -59,7 +59,9 @@ async function renderMatchedContent(appElement, match) {
 
 function navigateToFallback() {
   const fallBackRoute = routes.find((route) => route.path === "*");
-  navigateTo(fallBackRoute?.redirectTo || "/");
+  if (fallBackRoute) {
+    navigateTo(fallBackRoute?.redirectTo || "/");
+  }
 }
 
 export type Match = {
