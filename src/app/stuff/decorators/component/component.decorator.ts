@@ -16,6 +16,7 @@ export function Component(options: any): any {
         OriginalClass.observedAttributesSet || new Set();
       private _isFullyConstructed = false;
       private _data;
+      private originalOptions = options;
 
       constructor(...args: any) {
         super();
@@ -24,7 +25,9 @@ export function Component(options: any): any {
 
         // Copy properties from the instance to 'this'
         Object.assign(this, instance);
-        this.initializeComponent();
+        const template = this.processPawForElements(this._data);
+
+        this.initializeComponent(template);
 
         // Dynamically check and call pawInit if it exists
         if (typeof instance["pawInit"] === "function") {
@@ -32,9 +35,9 @@ export function Component(options: any): any {
         }
       }
 
-      private initializeComponent() {
+      private initializeComponent(template) {
         this.initializeData();
-        this.initializeStyles();
+        this.initializeStyles(template);
         loadDynamicComponents(options.components);
         this._isFullyConstructed = true;
       }
@@ -54,15 +57,92 @@ export function Component(options: any): any {
           "property-changed",
           this.handlePropertyChange.bind(this)
         );
+
         properties.forEach((property) => this.initializeProperty(property));
       }
 
+      processPawForElements(variables = {}) {
+        let htmlString = this.originalOptions.template;
+        // Parse the HTML string into a DOM element
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlString, "text/html");
+        const elements = doc.querySelectorAll("[pawFor]");
+
+        elements.forEach((element) => {
+          let pawForValue = element.getAttribute("pawFor");
+
+          // Replace placeholders with actual values from the variables object
+          Object.keys(variables).forEach((key) => {
+            const regex = new RegExp(`{{\\s*${key}\\s*}}`, "g");
+            pawForValue = pawForValue.replace(regex, variables[key]);
+          });
+
+          // Updated regex to include different comparison operators
+          const loopRegex =
+            /let\s+([a-zA-Z_$][\w$]*)\s*=\s*(-?\d+);\s*\1\s*([<>]=?|==)\s*(-?\d+);\s*\1\+\s*=\s*(-?\d+)/;
+
+          console.log(loopRegex, pawForValue);
+
+          if (loopRegex.test(pawForValue)) {
+            const [fullMatch, iterator, start, comparisonOperator, end, step] =
+              pawForValue.match(loopRegex);
+            const startIndex = parseInt(start, 10);
+            const endIndex = parseInt(end, 10);
+            const stepValue = parseInt(step, 10);
+
+            for (
+              let i = startIndex;
+              this.evaluateCondition(i, comparisonOperator, endIndex);
+              i += stepValue
+            ) {
+              const clonedElement = element.cloneNode(true);
+
+              if (clonedElement instanceof HTMLElement) {
+                clonedElement.innerHTML = clonedElement.innerHTML.replace(
+                  new RegExp(`{{\\s*${iterator}\\s*}}`, "g"),
+                  i.toString()
+                );
+                element.parentNode.insertBefore(clonedElement, element);
+              }
+            }
+
+            element.parentNode.removeChild(element);
+          }
+        });
+
+        // Return the processed HTML as a string
+        return doc.body.innerHTML;
+      }
+
+      private evaluateCondition(i, operator, value) {
+        console.log(i, operator, value);
+
+        switch (operator) {
+          case "<":
+            return i < value;
+          case ">":
+            return i > value;
+          case "<=":
+            return i <= value;
+          case ">=":
+            return i >= value;
+          case "==":
+            return i == value;
+          case "===":
+            return i === value;
+          default:
+            throw new Error(`Unsupported operator: ${operator}`);
+        }
+      }
+
       private handlePropertyChange(e: CustomEvent) {
+        const template = this.processPawForElements(this._data);
+
         // Handle property change event
         this._data[e.detail.property] = e.detail.newValue;
 
         this.innerHTML = scopeHtml(
-          options.template,
+          template || options.template,
           (this.constructor as typeof OriginalClass & ComponentClass).styleId,
           this._data
         );
@@ -116,13 +196,18 @@ export function Component(options: any): any {
         );
       }
 
-      private initializeStyles() {
+      private initializeStyles(template) {
         const styleId = (
           this.constructor as typeof OriginalClass & ComponentClass
         ).styleId;
         this.setAttribute(styleId, "");
         const scopedCssString = scopeCss(options.styles, styleId);
-        this.innerHTML = scopeHtml(options.template, styleId, this._data);
+
+        this.innerHTML = scopeHtml(
+          template || options.template,
+          styleId,
+          this._data
+        );
         (
           this.constructor as typeof OriginalClass & ComponentClass
         ).appendScopedStyle(scopedCssString, styleId);
