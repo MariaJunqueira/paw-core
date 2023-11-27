@@ -12,4 +12,7 @@ export default class AboutComponent {
   @Observed() titles: string = "pawsome";
   @Observed() description: string;
   autor: string = "Azevedo";
+  minValue = 10;
+  maxValue = 20;
+  step = -2;
 }
