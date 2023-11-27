@@ -25,7 +25,7 @@ export function Component(options: any): any {
 
         // Copy properties from the instance to 'this'
         Object.assign(this, instance);
-        const template = this.processPawForElements();
+        const template = this.processPawForElements(this._data);
 
         this.initializeComponent(template);
 
@@ -61,22 +61,40 @@ export function Component(options: any): any {
         properties.forEach((property) => this.initializeProperty(property));
       }
 
-      processPawForElements() {
-        const htmlString = this.originalOptions.template;
+      processPawForElements(variables = {}) {
+        let htmlString = this.originalOptions.template;
         // Parse the HTML string into a DOM element
         const parser = new DOMParser();
         const doc = parser.parseFromString(htmlString, "text/html");
         const elements = doc.querySelectorAll("[pawFor]");
 
         elements.forEach((element) => {
-          const pawForValue = element.getAttribute("pawFor");
-          const loopRegex = /let\s+(\w+)\s*=\s*(\d+);\s*\1\s*<\s*(\d+);/;
+          let pawForValue = element.getAttribute("pawFor");
+
+          // Replace placeholders with actual values from the variables object
+          Object.keys(variables).forEach((key) => {
+            const regex = new RegExp(`{{\\s*${key}\\s*}}`, "g");
+            pawForValue = pawForValue.replace(regex, variables[key]);
+          });
+
+          // Updated regex to include different comparison operators
+          const loopRegex =
+            /let\s+([a-zA-Z_$][\w$]*)\s*=\s*(-?\d+);\s*\1\s*([<>]=?|==)\s*(-?\d+);\s*\1\+\s*=\s*(-?\d+)/;
+
+          console.log(loopRegex, pawForValue);
 
           if (loopRegex.test(pawForValue)) {
-            const [fullMatch, iterator, start, end] =
+            const [fullMatch, iterator, start, comparisonOperator, end, step] =
               pawForValue.match(loopRegex);
+            const startIndex = parseInt(start, 10);
+            const endIndex = parseInt(end, 10);
+            const stepValue = parseInt(step, 10);
 
-            for (let i = parseInt(start); i < parseInt(end); i++) {
+            for (
+              let i = startIndex;
+              this.evaluateCondition(i, comparisonOperator, endIndex);
+              i += stepValue
+            ) {
               const clonedElement = element.cloneNode(true);
 
               if (clonedElement instanceof HTMLElement) {
@@ -96,8 +114,29 @@ export function Component(options: any): any {
         return doc.body.innerHTML;
       }
 
+      private evaluateCondition(i, operator, value) {
+        console.log(i, operator, value);
+
+        switch (operator) {
+          case "<":
+            return i < value;
+          case ">":
+            return i > value;
+          case "<=":
+            return i <= value;
+          case ">=":
+            return i >= value;
+          case "==":
+            return i == value;
+          case "===":
+            return i === value;
+          default:
+            throw new Error(`Unsupported operator: ${operator}`);
+        }
+      }
+
       private handlePropertyChange(e: CustomEvent) {
-        const template = this.processPawForElements();
+        const template = this.processPawForElements(this._data);
 
         // Handle property change event
         this._data[e.detail.property] = e.detail.newValue;
