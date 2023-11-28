@@ -77,18 +77,88 @@ export function Component(options: any): any {
             pawForValue = pawForValue.replace(regex, variables[key]);
           });
 
-          // Updated regex to include different comparison operators
-          const loopRegex =
-            /let\s+([a-zA-Z_$][\w$]*)\s*=\s*(-?\d+);\s*\1\s*([<>]=?|==)\s*(-?\d+);\s*\1\+\s*=\s*(-?\d+)/;
+          /*
+            let\s+:
+            - Matches the literal word 'let' followed by one or more whitespace characters.
+            - Used to identify the start of a loop declaration.
 
-          console.log(loopRegex, pawForValue);
+            ([a-zA-Z_$][\w$]*):
+            - Capturing group for the loop variable name.
+            - Matches a letter (a-z or A-Z), an underscore (_), or a dollar sign ($) at the beginning.
+            - Followed by zero or more word characters (which include letters, digits, underscores) or dollar signs.
+            - Follows the rules for valid JavaScript variable names.
+
+            \s*=\s*:
+            - Matches the assignment operator '=' with optional whitespace on both sides.
+
+            (-?\d+):
+            - Capturing group for the loop start value.
+            - Matches an optional minus sign (-) to allow negative numbers.
+            - Followed by one or more digits (\d), capturing an integer.
+
+            ;:
+            - Matches the literal semicolon, a delimiter in the loop syntax.
+
+            \s*\1\s*:
+            - Uses \1 to refer back to the first capturing group (the loop variable name).
+            - Ensures that the same variable is used in the loop condition.
+            - Surrounding \s* allows optional whitespace.
+
+            ([<>]=?|==):
+            - Capturing group for the comparison operator.
+            - Matches '<' or '>' followed by an optional '=' (less than, greater than, less than or equal to, greater than or equal to).
+            - Or '==' for equality comparison.
+
+            (-?\d+):
+            - Another capturing group, similar to the fourth step, capturing an integer that represents the loop end condition.
+
+            ;:
+            - Another literal semicolon delimiter.
+
+            \s*\1:
+            - Again, refers to the loop variable name with optional whitespace.
+
+            ((\+\+|--)|(\+=|-=)\s*(-?\d+)):
+            - The final and most complex part, a capturing group for the increment/decrement expression.
+            - Consists of two alternatives:
+                - (\+\+|--) matches either '++' or '--' for simple increments or decrements by 1.
+                - (\+=|-=)\s*(-?\d+) matches either '+=' or '-=', followed by an optional space and then an integer (positive or negative). 
+                - This is for increments/decrements by a specific value.
+        */
+
+          const loopRegex =
+            /let\s+([a-zA-Z_$][\w$]*)\s*=\s*(-?\d+);\s*\1\s*([<>]=?|==)\s*(-?\d+);\s*\1((\+\+|--)|(\+=|-=)\s*(-?\d+))/;
 
           if (loopRegex.test(pawForValue)) {
-            const [fullMatch, iterator, start, comparisonOperator, end, step] =
-              pawForValue.match(loopRegex);
+            const [
+              fullMatch,
+              iterator,
+              start,
+              comparisonOperator,
+              end,
+              incrementExpression,
+              simpleIncrement,
+              compoundIncrement,
+              compoundValue,
+            ] = pawForValue.match(loopRegex);
             const startIndex = parseInt(start, 10);
             const endIndex = parseInt(end, 10);
-            const stepValue = parseInt(step, 10);
+            let stepValue;
+
+            if (simpleIncrement === "++") {
+              stepValue = 1;
+            } else if (simpleIncrement === "--") {
+              stepValue = -1;
+            } else if (compoundIncrement && compoundValue) {
+              stepValue =
+                compoundIncrement === "+="
+                  ? parseInt(compoundValue, 10)
+                  : -parseInt(compoundValue, 10);
+            } else {
+              throw new Error(
+                `Unsupported increment expression: ${incrementExpression}`
+              );
+            }
 
             for (
               let i = startIndex;
