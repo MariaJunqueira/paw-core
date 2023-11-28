@@ -1,6 +1,10 @@
-import './styles.scss';
+import "./styles.scss";
 
-import { navigateTo, router } from './app/navigation';
+import initRouter from "@pawcode/routes";
+
+import routes from "./app/routes";
+
+const { navigateTo, router } = initRouter(routes);
 
 window.addEventListener("pagehide", (event) => {
   if (event.persisted) {
@@ -25,5 +29,5 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  router();
+  initRouter(routes);
 });
