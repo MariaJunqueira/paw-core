@@ -64,124 +64,144 @@ export function Component(options: any): any {
       processPawForElements(variables = {}) {
         let htmlString = this.originalOptions.template;
         // Parse the HTML string into a DOM element
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(htmlString, "text/html");
+        const doc = this.parseHtmlString(htmlString);
         const elements = doc.querySelectorAll("[pawFor]");
 
         elements.forEach((element) => {
-          let pawForValue = element.getAttribute("pawFor");
+          let pawForValue = this.replacePlaceholders(
+            element.getAttribute("pawFor"),
+            variables
+          );
 
-          // Replace placeholders with actual values from the variables object
-          Object.keys(variables).forEach((key) => {
-            const regex = new RegExp(`{{\\s*${key}\\s*}}`, "g");
-            pawForValue = pawForValue.replace(regex, variables[key]);
-          });
-
-          /*
-            let\s+:
-            - Matches the literal word 'let' followed by one or more whitespace characters.
-            - Used to identify the start of a loop declaration.
-
-            ([a-zA-Z_$][\w$]*):
-            - Capturing group for the loop variable name.
-            - Matches a letter (a-z or A-Z), an underscore (_), or a dollar sign ($) at the beginning.
-            - Followed by zero or more word characters (which include letters, digits, underscores) or dollar signs.
-            - Follows the rules for valid JavaScript variable names.
-
-            \s*=\s*:
-            - Matches the assignment operator '=' with optional whitespace on both sides.
-
-            (-?\d+):
-            - Capturing group for the loop start value.
-            - Matches an optional minus sign (-) to allow negative numbers.
-            - Followed by one or more digits (\d), capturing an integer.
-
-            ;:
-            - Matches the literal semicolon, a delimiter in the loop syntax.
-
-            \s*\1\s*:
-            - Uses \1 to refer back to the first capturing group (the loop variable name).
-            - Ensures that the same variable is used in the loop condition.
-            - Surrounding \s* allows optional whitespace.
-
-            ([<>]=?|==):
-            - Capturing group for the comparison operator.
-            - Matches '<' or '>' followed by an optional '=' (less than, greater than, less than or equal to, greater than or equal to).
-            - Or '==' for equality comparison.
-
-            (-?\d+):
-            - Another capturing group, similar to the fourth step, capturing an integer that represents the loop end condition.
-
-            ;:
-            - Another literal semicolon delimiter.
-
-            \s*\1:
-            - Again, refers to the loop variable name with optional whitespace.
-
-            ((\+\+|--)|(\+=|-=)\s*(-?\d+)):
-            - The final and most complex part, a capturing group for the increment/decrement expression.
-            - Consists of two alternatives:
-                - (\+\+|--) matches either '++' or '--' for simple increments or decrements by 1.
-                - (\+=|-=)\s*(-?\d+) matches either '+=' or '-=', followed by an optional space and then an integer (positive or negative). 
-                - This is for increments/decrements by a specific value.
-        */
-
-          const loopRegex =
-            /let\s+([a-zA-Z_$][\w$]*)\s*=\s*(-?\d+);\s*\1\s*([<>]=?|==)\s*(-?\d+);\s*\1((\+\+|--)|(\+=|-=)\s*(-?\d+))/;
-
-          if (loopRegex.test(pawForValue)) {
-            const [
-              fullMatch,
-              iterator,
-              start,
-              comparisonOperator,
-              end,
-              incrementExpression,
-              simpleIncrement,
-              compoundIncrement,
-              compoundValue,
-            ] = pawForValue.match(loopRegex);
-            const startIndex = parseInt(start, 10);
-            const endIndex = parseInt(end, 10);
-            let stepValue;
-
-            if (simpleIncrement === "++") {
-              stepValue = 1;
-            } else if (simpleIncrement === "--") {
-              stepValue = -1;
-            } else if (compoundIncrement && compoundValue) {
-              stepValue =
-                compoundIncrement === "+="
-                  ? parseInt(compoundValue, 10)
-                  : -parseInt(compoundValue, 10);
-            } else {
-              throw new Error(
-                `Unsupported increment expression: ${incrementExpression}`
-              );
-            }
-
-            for (
-              let i = startIndex;
-              this.evaluateCondition(i, comparisonOperator, endIndex);
-              i += stepValue
-            ) {
-              const clonedElement = element.cloneNode(true);
-
-              if (clonedElement instanceof HTMLElement) {
-                clonedElement.innerHTML = clonedElement.innerHTML.replace(
-                  new RegExp(`{{\\s*${iterator}\\s*}}`, "g"),
-                  i.toString()
-                );
-                element.parentNode.insertBefore(clonedElement, element);
-              }
-            }
-
-            element.parentNode.removeChild(element);
+          const loopParams = this.parseLoopParameters(pawForValue);
+          if (loopParams) {
+            this.executeLoop(element, loopParams);
           }
         });
 
         // Return the processed HTML as a string
         return doc.body.innerHTML;
+      }
+
+      private executeLoop(element, loopParams) {
+        const [
+          fullMatch,
+          iterator,
+          start,
+          comparisonOperator,
+          end,
+          incrementExpression,
+          simpleIncrement,
+          compoundIncrement,
+          compoundValue,
+        ] = loopParams;
+
+        const startIndex = parseInt(start, 10);
+        const endIndex = parseInt(end, 10);
+        let stepValue;
+
+        if (simpleIncrement === "++") {
+          stepValue = 1;
+        } else if (simpleIncrement === "--") {
+          stepValue = -1;
+        } else if (compoundIncrement && compoundValue) {
+          stepValue =
+            compoundIncrement === "+="
+              ? parseInt(compoundValue, 10)
+              : -parseInt(compoundValue, 10);
+        } else {
+          throw new Error(
+            `Unsupported increment expression: ${incrementExpression}`
+          );
+        }
+
+        for (
+          let i = startIndex;
+          this.evaluateCondition(i, comparisonOperator, endIndex);
+          i += stepValue
+        ) {
+          const clonedElement = element.cloneNode(true);
+
+          if (clonedElement instanceof HTMLElement) {
+            clonedElement.innerHTML = clonedElement.innerHTML.replace(
+              new RegExp(`{{\\s*${iterator}\\s*}}`, "g"),
+              i.toString()
+            );
+            element.parentNode.insertBefore(clonedElement, element);
+          }
+        }
+
+        element.parentNode.removeChild(element);
+      }
+
+      private parseHtmlString(htmlString) {
+        const parser = new DOMParser();
+        return parser.parseFromString(htmlString, "text/html");
+      }
+
+      /*
+        let\s+:
+        - Matches the literal word 'let' followed by one or more whitespace characters.
+        - Used to identify the start of a loop declaration.
+
+        ([a-zA-Z_$][\w$]*):
+        - Capturing group for the loop variable name.
+        - Matches a letter (a-z or A-Z), an underscore (_), or a dollar sign ($) at the beginning.
+        - Followed by zero or more word characters (which include letters, digits, underscores) or dollar signs.
+        - Follows the rules for valid JavaScript variable names.
+
+        \s*=\s*:
+        - Matches the assignment operator '=' with optional whitespace on both sides.
+
+        (-?\d+):
+        - Capturing group for the loop start value.
+        - Matches an optional minus sign (-) to allow negative numbers.
+        - Followed by one or more digits (\d), capturing an integer.
+
+        ;:
+        - Matches the literal semicolon, a delimiter in the loop syntax.
+
+        \s*\1\s*:
+        - Uses \1 to refer back to the first capturing group (the loop variable name).
+        - Ensures that the same variable is used in the loop condition.
+        - Surrounding \s* allows optional whitespace.
+
+        ([<>]=?|==):
+        - Capturing group for the comparison operator.
+        - Matches '<' or '>' followed by an optional '=' (less than, greater than, less than or equal to, greater than or equal to).
+        - Or '==' for equality comparison.
+
+        (-?\d+):
+        - Another capturing group, similar to the fourth step, capturing an integer that represents the loop end condition.
+
+        ;:
+        - Another literal semicolon delimiter.
+
+        \s*\1:
+        - Again, refers to the loop variable name with optional whitespace.
+
+        ((\+\+|--)|(\+=|-=)\s*(-?\d+)):
+        - The final and most complex part, a capturing group for the increment/decrement expression.
+        - Consists of two alternatives:
+            - (\+\+|--) matches either '++' or '--' for simple increments or decrements by 1.
+            - (\+=|-=)\s*(-?\d+) matches either '+=' or '-=', followed by an optional space and then an integer (positive or negative). 
+            - This is for increments/decrements by a specific value.
+      */
+      private parseLoopParameters(pawForValue) {
+        const loopRegex =
+          /let\s+([a-zA-Z_$][\w$]*)\s*=\s*(-?\d+);\s*\1\s*([<>]=?|==)\s*(-?\d+);\s*\1((\+\+|--)|(\+=|-=)\s*(-?\d+))/;
+        if (loopRegex.test(pawForValue)) {
+          return pawForValue.match(loopRegex);
+        }
+        return null;
+      }
+
+      private replacePlaceholders(pawForValue, variables) {
+        Object.keys(variables).forEach((key) => {
+          const regex = new RegExp(`{{\\s*${key}\\s*}}`, "g");
+          pawForValue = pawForValue.replace(regex, variables[key]);
+        });
+        return pawForValue;
       }
 
       private evaluateCondition(i, operator, value) {
