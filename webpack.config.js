@@ -79,6 +79,7 @@ module.exports = {
     },
     historyApiFallback: true,
     open: true,
+    port: 2211,
     headers: {
       "Cache-Control": "max-age=31536000",
     },
