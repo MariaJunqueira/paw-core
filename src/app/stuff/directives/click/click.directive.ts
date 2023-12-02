@@ -22,7 +22,10 @@ class PawClickDirective {
 
       if (methodMatch) {
         const methodName = methodMatch[1];
-        const methodArgs = this.parseArguments(methodMatch[2]);
+        const methodArgs = this.parseArguments(
+          methodMatch[2],
+          event.target as HTMLElement
+        );
 
         const method = this.context[methodName];
         if (typeof method === "function") {
@@ -32,7 +35,7 @@ class PawClickDirective {
     }
   }
 
-  private parseArguments(argsString: string): any[] {
+  private parseArguments(argsString: string, element: HTMLElement): any[] {
     const args = argsString
       .split(/,(?![^\[\]\{\}\(\)]*[\]\}\)])/)
       .map((arg) => arg.trim());
@@ -42,32 +45,33 @@ class PawClickDirective {
         console.warn(
           "Direct object literals are not supported. Please define the object in your component."
         );
-        return null; // Or handle this case as you prefer
+        return undefined;
+      } else if (this.isArray(arg)) {
+        console.warn(
+          "Arrays are not supported. Please define the array in your component."
+        );
+        return undefined;
+      } else {
+        return this.parseSingleArgument(arg, element);
       }
-      return this.parseSingleArgument(arg);
     });
+  }
+
+  private isArray(arg: string): boolean {
+    return arg.trim().startsWith("[") && arg.trim().endsWith("]");
   }
 
   private isObjectLiteral(arg: string): boolean {
     return arg.trim().startsWith("{") && arg.trim().endsWith("}");
   }
 
-  private parseSingleArgument(arg: string): any {
-    console.log("parseSingleArgument", arg);
-
+  private parseSingleArgument(arg: any, currentElement: HTMLElement): any {
     // Check for string literals
     if (
       (arg.startsWith("'") && arg.endsWith("'")) ||
       (arg.startsWith('"') && arg.endsWith('"'))
     ) {
       return arg.slice(1, -1);
-    }
-    // Handle array literals
-    else if (arg.startsWith("[") && arg.endsWith("]")) {
-      return arg
-        .substring(1, arg.length - 1)
-        .split(/,(?![^\[\]]*\])/)
-        .map(this.parseSingleArgument.bind(this));
     }
     // Handle boolean and numeric literals
     else if (!isNaN(parseFloat(arg))) {
@@ -77,13 +81,28 @@ class PawClickDirective {
     }
     // Treat as a variable reference
     else {
-      return this.resolveVariable(arg);
+      return this.resolveVariable(arg, currentElement);
     }
   }
-  private resolveVariable(variableName: string) {
-    // Attempt to resolve the variable from the component's context
-    // Assuming 'this.context' refers to your component instance
+
+  private resolveVariable(
+    variableName: string,
+    currentElement: HTMLElement
+  ): any {
+    // Check if the current element has an attribute 'paw-iterator'
+    const iteratorName = currentElement.getAttribute("paw-iterator");
+    if (iteratorName && iteratorName === variableName) {
+      // If the iterator name matches variableName, return its value
+      return this.getIteratorValue(currentElement);
+    }
+
+    // If no iterator match, attempt to resolve from the component's context
     return this.context[variableName];
+  }
+
+  private getIteratorValue(element: HTMLElement): any {
+    // Logic to get the value of the iterator
+    return element.getAttribute("paw-index");
   }
 }
 

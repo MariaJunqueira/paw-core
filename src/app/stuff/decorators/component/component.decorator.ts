@@ -1,4 +1,4 @@
-import PawClickDirective from "../click.directive";
+import PawClickDirective from "../../directives/click/click.directive";
 import { scopeCss, scopeHtml } from "./component.helper";
 import { loadDynamicComponents } from "./dynamic-component.loader";
 
@@ -156,6 +156,9 @@ export function Component(options: any): any {
           "paw-index",
           value.replace(new RegExp(`{{\\s*${iterator}\\s*}}`, "g"), value)
         );
+
+        // add paw index attribute
+        element.setAttribute("paw-iterator", iterator);
 
         // Replace in attributes
         Array.from(element.attributes).forEach((attr) => {
