@@ -1,9 +1,15 @@
+<!-- app.component.html -->
 <h1>Meow World</h1>
-<mug-router></mug-router>
+<bowl-router></bowl-router>
+<div>-----------------------------</div>
 <div @pawIf="{{conditionA}}">
-  <div>This content <strong>A</strong> will be shown or hidden based on the condition with this {{name}}</div>
+  <div>This content A will be shown or hidden based on the condition. Hello {{name}}!</div>
 </div>
 <div>-----------------------------</div>
 <div @pawIf="{{conditionB}}">
-  <div>This content <strong>B</strong> will be shown or hidden based on the condition with this {{name}}</div>
+  <div>This content B will be shown or hidden based on the condition. Hello {{name}}!</div>
+</div>
+<div>-----------------------------</div>
+<div @pawFor="let index=0; index<{{times}}; index++">
+  <div>This content will be iterated based on the times. Index: {{index}}!</div>
 </div>
