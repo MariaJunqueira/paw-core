@@ -1,9 +1,11 @@
+import BowlRouter from "@pawcode/routes";
+
 import templateString from "./app.component.html";
 import cssString from "./app.component.scss";
 import { Component } from "./stuff/decorators/component/component.decorator";
 
 const componentImports = {
-  "mug-router": () => import("./stuff/mug/mug.router"),
+  // "component-selector": () => import("./component-selector/component-selector.component"),
   // other components...
 };
 
@@ -12,6 +14,7 @@ const componentImports = {
   template: templateString,
   styles: cssString,
   components: componentImports,
+  imports: [BowlRouter],
 })
 export default class AppComponent {
   constructor() {
