@@ -28,6 +28,4 @@ document.addEventListener("DOMContentLoaded", () => {
       navigateTo((e.target as HTMLAnchorElement).href);
     }
   });
-
-  initRouter(routes);
 });
