@@ -19,9 +19,6 @@ const componentImports = {
   imports: [BowlRouter],
 })
 export default class AppComponent {
-
-  condition = "true";
-
   conditionA = true;
   conditionB = false;
   name = "Vitor";
