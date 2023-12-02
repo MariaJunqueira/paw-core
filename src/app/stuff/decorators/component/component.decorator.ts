@@ -1,3 +1,4 @@
+import PawClickDirective from "../click.directive";
 import { scopeCss, scopeHtml } from "./component.helper";
 import { loadDynamicComponents } from "./dynamic-component.loader";
 
@@ -25,9 +26,18 @@ export function Component(options: any): any {
 
         // Copy properties from the instance to 'this'
         Object.assign(this, instance);
+        // // Bind methods from OriginalClass instance to 'this'
+        Object.getOwnPropertyNames(OriginalClass.prototype).forEach((prop) => {
+          if (typeof OriginalClass.prototype[prop] === "function") {
+            instance[prop] = OriginalClass.prototype[prop].bind(instance);
+          }
+        });
+
         const template = this.processPawForElements(this._data);
 
         this.initializeComponent(template);
+
+        new PawClickDirective(instance, this);
 
         // Dynamically check and call pawInit if it exists
         if (typeof instance["pawInit"] === "function") {
@@ -205,8 +215,6 @@ export function Component(options: any): any {
       }
 
       private evaluateCondition(i, operator, value) {
-        console.log(i, operator, value);
-
         switch (operator) {
           case "<":
             return i < value;
