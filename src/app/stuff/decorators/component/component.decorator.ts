@@ -1,8 +1,9 @@
-import { scopeCss, scopeHtml } from "./component.helper";
-import { loadDynamicComponents } from "./dynamic-component.loader";
+import { PawIfDirective } from '../directives/if/if.directive';
+import { scopeCss, scopeHtml } from './component.helper';
+import { loadDynamicComponents } from './dynamic-component.loader';
 
 export interface ComponentClass {
-  new (...args: any[]): HTMLElement;
+  new(...args: any[]): HTMLElement;
   observedAttributesSet?: Set<string>;
   appendScopedStyle: (scopedCssString: string, styleId: string) => void;
   styleId: string;
@@ -184,7 +185,7 @@ export function Component(options: any): any {
         - The final and most complex part, a capturing group for the increment/decrement expression.
         - Consists of two alternatives:
             - (\+\+|--) matches either '++' or '--' for simple increments or decrements by 1.
-            - (\+=|-=)\s*(-?\d+) matches either '+=' or '-=', followed by an optional space and then an integer (positive or negative). 
+            - (\+=|-=)\s*(-?\d+) matches either '+=' or '-=', followed by an optional space and then an integer (positive or negative).
             - This is for increments/decrements by a specific value.
       */
       private parseLoopParameters(pawForValue) {
@@ -236,6 +237,9 @@ export function Component(options: any): any {
           (this.constructor as typeof OriginalClass & ComponentClass).styleId,
           this._data
         );
+
+        // Reflect changes on the PawIfDirective
+        PawIfDirective(this);
       }
 
       private initializeProperty(property: string) {
@@ -349,6 +353,15 @@ export function Component(options: any): any {
           document.head.appendChild(styleTag);
         }
       }
+
+      connectedCallback() {
+        this.processDirectives();
+      }
+
+      processDirectives() {
+        PawIfDirective(this);
+      }
+
     } as unknown as T;
   };
 }
