@@ -9,7 +9,9 @@ export function PawIfDirective(rootElement) {
       element.__pawIfState = { placeholder };
     }
 
-    const condition = element.getAttribute('@pawIf') === "true";
+    const conditionAttr = element.getAttribute('@pawIf');
+    const condition = evaluateCondition(conditionAttr);
+
     const { placeholder } = element.__pawIfState;
     const isAttached = placeholder.nextSibling === element;
 
@@ -19,4 +21,10 @@ export function PawIfDirective(rootElement) {
       placeholder.parentNode.removeChild(element);
     }
   });
+}
+
+function evaluateCondition(value: string): boolean {
+  if (value === 'true') return true;
+  if (value === 'false') return false;
+  return Boolean(value);
 }
