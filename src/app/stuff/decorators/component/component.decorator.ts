@@ -133,10 +133,7 @@ export function Component(options: any): any {
           const clonedElement = element.cloneNode(true);
 
           if (clonedElement instanceof HTMLElement) {
-            clonedElement.innerHTML = clonedElement.innerHTML.replace(
-              new RegExp(`{{\\s*${iterator}\\s*}}`, "g"),
-              i.toString()
-            );
+            this.replaceContent(clonedElement, iterator, i.toString());
             element.parentNode.insertBefore(clonedElement, element);
           }
         }
@@ -147,6 +144,45 @@ export function Component(options: any): any {
       private parseHtmlString(htmlString) {
         const parser = new DOMParser();
         return parser.parseFromString(htmlString, "text/html");
+      }
+
+      private replaceContent(
+        element: HTMLElement,
+        iterator: string,
+        value: string
+      ) {
+        // add paw index attribute
+        element.setAttribute(
+          "paw-index",
+          value.replace(new RegExp(`{{\\s*${iterator}\\s*}}`, "g"), value)
+        );
+
+        // Replace in attributes
+        Array.from(element.attributes).forEach((attr) => {
+          // Skip attributes that start with "@paw"
+          element.setAttribute(
+            attr.name,
+            attr.value.replace(
+              new RegExp(`{{\\s*${iterator}\\s*}}`, "g"),
+              value
+            )
+          );
+        });
+
+        // Replace in innerHTML if the element has children
+        if (element.children.length > 0) {
+          Array.from(element.children).forEach((child) => {
+            if (child instanceof HTMLElement) {
+              this.replaceContent(child as HTMLElement, iterator, value);
+            }
+          });
+        } else {
+          // Replace in inner text or innerHTML if the element has no children
+          element.innerHTML = element.innerHTML.replace(
+            new RegExp(`{{\\s*${iterator}\\s*}}`, "g"),
+            value
+          );
+        }
       }
 
       /*
