@@ -2,8 +2,7 @@ class PawClickDirective {
   private rootElement: HTMLElement;
 
   constructor(private context: any, rootElement: HTMLElement) {
-    // Assuming the context has a property to access the root element
-    this.rootElement = rootElement; // Replace 'rootElement' with the actual property name
+    this.rootElement = rootElement;
     this.bindEvent();
   }
 
