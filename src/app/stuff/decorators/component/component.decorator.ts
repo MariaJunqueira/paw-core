@@ -1,6 +1,7 @@
-import PawClickDirective from "../../directives/click/click.directive";
-import { scopeCss, scopeHtml } from "./component.helper";
-import { loadDynamicComponents } from "./dynamic-component.loader";
+import PawClickDirective from '../../directives/click/click.directive';
+import { PawIfDirective } from '../directives/if/if.directive';
+import { scopeCss, scopeHtml } from './component.helper';
+import { loadDynamicComponents } from './dynamic-component.loader';
 
 export interface ComponentClass {
   new (...args: any[]): HTMLElement;
@@ -28,7 +29,7 @@ export function Component(options: any): any {
         Object.assign(this, instance);
         // // Bind methods from OriginalClass instance to 'this'
         Object.getOwnPropertyNames(OriginalClass.prototype).forEach((prop) => {
-          if (typeof OriginalClass.prototype[prop] === "function") {
+          if (typeof OriginalClass.prototype[prop] === 'function') {
             instance[prop] = OriginalClass.prototype[prop].bind(instance);
           }
         });
@@ -40,8 +41,8 @@ export function Component(options: any): any {
         new PawClickDirective(instance, this);
 
         // Dynamically check and call pawInit if it exists
-        if (typeof instance["pawInit"] === "function") {
-          instance["pawInit"].apply(this);
+        if (typeof instance['pawInit'] === 'function') {
+          instance['pawInit'].apply(this);
         }
       }
 
@@ -64,7 +65,7 @@ export function Component(options: any): any {
         this._data = {}; // Initialize data as required
 
         this.addEventListener(
-          "property-changed",
+          'property-changed',
           this.handlePropertyChange.bind(this)
         );
 
@@ -75,11 +76,11 @@ export function Component(options: any): any {
         let htmlString = this.originalOptions.template;
         // Parse the HTML string into a DOM element
         const doc = this.parseHtmlString(htmlString);
-        const elements = doc.querySelectorAll("[pawFor]");
+        const elements = doc.querySelectorAll('[pawFor]');
 
         elements.forEach((element) => {
           let pawForValue = this.replacePlaceholders(
-            element.getAttribute("pawFor"),
+            element.getAttribute('pawFor'),
             variables
           );
 
@@ -110,13 +111,13 @@ export function Component(options: any): any {
         const endIndex = parseInt(end, 10);
         let stepValue;
 
-        if (simpleIncrement === "++") {
+        if (simpleIncrement === '++') {
           stepValue = 1;
-        } else if (simpleIncrement === "--") {
+        } else if (simpleIncrement === '--') {
           stepValue = -1;
         } else if (compoundIncrement && compoundValue) {
           stepValue =
-            compoundIncrement === "+="
+            compoundIncrement === '+='
               ? parseInt(compoundValue, 10)
               : -parseInt(compoundValue, 10);
         } else {
@@ -143,7 +144,7 @@ export function Component(options: any): any {
 
       private parseHtmlString(htmlString) {
         const parser = new DOMParser();
-        return parser.parseFromString(htmlString, "text/html");
+        return parser.parseFromString(htmlString, 'text/html');
       }
 
       private replaceContent(
@@ -153,12 +154,12 @@ export function Component(options: any): any {
       ) {
         // add paw index attribute
         element.setAttribute(
-          "paw-index",
-          value.replace(new RegExp(`{{\\s*${iterator}\\s*}}`, "g"), value)
+          'paw-index',
+          value.replace(new RegExp(`{{\\s*${iterator}\\s*}}`, 'g'), value)
         );
 
         // add paw index attribute
-        element.setAttribute("paw-iterator", iterator);
+        element.setAttribute('paw-iterator', iterator);
 
         // Replace in attributes
         Array.from(element.attributes).forEach((attr) => {
@@ -166,7 +167,7 @@ export function Component(options: any): any {
           element.setAttribute(
             attr.name,
             attr.value.replace(
-              new RegExp(`{{\\s*${iterator}\\s*}}`, "g"),
+              new RegExp(`{{\\s*${iterator}\\s*}}`, 'g'),
               value
             )
           );
@@ -182,7 +183,7 @@ export function Component(options: any): any {
         } else {
           // Replace in inner text or innerHTML if the element has no children
           element.innerHTML = element.innerHTML.replace(
-            new RegExp(`{{\\s*${iterator}\\s*}}`, "g"),
+            new RegExp(`{{\\s*${iterator}\\s*}}`, 'g'),
             value
           );
         }
@@ -233,7 +234,7 @@ export function Component(options: any): any {
         - The final and most complex part, a capturing group for the increment/decrement expression.
         - Consists of two alternatives:
             - (\+\+|--) matches either '++' or '--' for simple increments or decrements by 1.
-            - (\+=|-=)\s*(-?\d+) matches either '+=' or '-=', followed by an optional space and then an integer (positive or negative). 
+            - (\+=|-=)\s*(-?\d+) matches either '+=' or '-=', followed by an optional space and then an integer (positive or negative).
             - This is for increments/decrements by a specific value.
       */
       private parseLoopParameters(pawForValue) {
@@ -247,7 +248,7 @@ export function Component(options: any): any {
 
       private replacePlaceholders(pawForValue, variables) {
         Object.keys(variables).forEach((key) => {
-          const regex = new RegExp(`{{\\s*${key}\\s*}}`, "g");
+          const regex = new RegExp(`{{\\s*${key}\\s*}}`, 'g');
           pawForValue = pawForValue.replace(regex, variables[key]);
         });
         return pawForValue;
@@ -255,17 +256,17 @@ export function Component(options: any): any {
 
       private evaluateCondition(i, operator, value) {
         switch (operator) {
-          case "<":
+          case '<':
             return i < value;
-          case ">":
+          case '>':
             return i > value;
-          case "<=":
+          case '<=':
             return i <= value;
-          case ">=":
+          case '>=':
             return i >= value;
-          case "==":
+          case '==':
             return i == value;
-          case "===":
+          case '===':
             return i === value;
           default:
             throw new Error(`Unsupported operator: ${operator}`);
@@ -283,6 +284,9 @@ export function Component(options: any): any {
           (this.constructor as typeof OriginalClass & ComponentClass).styleId,
           this._data
         );
+
+        // Reflect changes on the PawIfDirective
+        PawIfDirective(this);
       }
 
       private initializeProperty(property: string) {
@@ -323,7 +327,7 @@ export function Component(options: any): any {
         newValue: any
       ) {
         this.dispatchEvent(
-          new CustomEvent("property-changed", {
+          new CustomEvent('property-changed', {
             detail: {
               property,
               oldValue,
@@ -337,7 +341,7 @@ export function Component(options: any): any {
         const styleId = (
           this.constructor as typeof OriginalClass & ComponentClass
         ).styleId;
-        this.setAttribute(styleId, "");
+        this.setAttribute(styleId, '');
         const scopedCssString = scopeCss(options.styles, styleId);
 
         this.innerHTML = scopeHtml(
@@ -356,7 +360,7 @@ export function Component(options: any): any {
         newValue: string
       ) {
         this.dispatchEvent(
-          new CustomEvent("property-changed", {
+          new CustomEvent('property-changed', {
             detail: {
               name,
               oldValue,
@@ -390,11 +394,19 @@ export function Component(options: any): any {
         styleId: string
       ) {
         if (!document.head.querySelector(`#${styleId}`)) {
-          const styleTag = document.createElement("style");
+          const styleTag = document.createElement('style');
           styleTag.id = styleId;
           styleTag.textContent = scopedCssString;
           document.head.appendChild(styleTag);
         }
+      }
+
+      connectedCallback() {
+        this.processDirectives();
+      }
+
+      processDirectives() {
+        PawIfDirective(this);
       }
     } as unknown as T;
   };
