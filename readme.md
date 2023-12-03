@@ -1,4 +1,4 @@
-# Meow Paw
+# PawCode Framework
 
 ## Running commands
 
