@@ -22,7 +22,7 @@ export default class AppComponent {
   conditionA = true;
   conditionB = false;
   name = "Vitor";
-  times = 4;
+  times = 1;
 
   constructor() {
     console.log("AppComponent constructed!");

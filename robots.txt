@@ -1,2 +1,8 @@
-user-agent: *
-allow: /
+# Applies to all user agents
+User-agent: *
+
+# Permits indexing of all pages
+Allow: /
+
+# Example: To prevent indexing of "somepage", remove the '#' symbol in front of 'Disallow'
+# Disallow: /somepage
