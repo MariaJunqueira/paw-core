@@ -206,8 +206,6 @@ export function Component(options: any): any {
       }
 
       private evaluateCondition(i, operator, value) {
-        console.log(i, operator, value);
-
         switch (operator) {
           case "<":
             return i < value;
