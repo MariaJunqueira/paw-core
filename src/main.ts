@@ -23,11 +23,9 @@ window.addEventListener("popstate", router);
 
 document.addEventListener("DOMContentLoaded", () => {
   document.body.addEventListener("click", (e) => {
-    if ((e.target as HTMLElement).matches("[data-link]")) {
+    if ((e.target as HTMLElement).matches("[bowl-router]")) {
       e.preventDefault();
       navigateTo((e.target as HTMLAnchorElement).href);
     }
   });
-
-  initRouter(routes);
 });
