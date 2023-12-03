@@ -26,33 +26,32 @@ export default class AppComponent {
 
   constructor() {
     console.log("AppComponent constructed!");
-    // this.conditionA = false;
-    // this.conditionB = true;
-    // this.name = "Maria";
+    this.conditionA = false;
+    this.conditionB = true;
+    this.name = "Maria";
     this.times = 2;
   }
 
   pawInit() {
-    this.times = 10;
-    //   setTimeout(() => {
-    //     this.conditionA = true;
-    //     this.conditionB = false;
-    //     this.name = "Dália";
-    //     this.times = 3;
-    //   }, 1000);
+    setTimeout(() => {
+      this.conditionA = true;
+      this.conditionB = false;
+      this.name = "Dália";
+      this.times = 3;
+    }, 1000);
 
-    //   setTimeout(() => {
-    //     this.conditionA = false;
-    //     this.conditionB = true;
-    //     this.name = "Mia";
-    //     this.times = 4;
-    //   }, 2000);
+    setTimeout(() => {
+      this.conditionA = false;
+      this.conditionB = true;
+      this.name = "Mia";
+      this.times = 4;
+    }, 2000);
 
-    //   setTimeout(() => {
-    //     this.conditionA = true;
-    //     this.conditionB = false;
-    //     this.name = "Mia e Dália";
-    //     this.times = 1;
-    //   }, 3000);
+    setTimeout(() => {
+      this.conditionA = true;
+      this.conditionB = false;
+      this.name = "Mia e Dália";
+      this.times = 1;
+    }, 3000);
   }
 }
