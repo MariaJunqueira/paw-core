@@ -1,4 +1,4 @@
-# PawCode
+# PawCode Framework
 
 ## Running commands
 
