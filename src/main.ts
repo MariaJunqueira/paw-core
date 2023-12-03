@@ -1,8 +1,8 @@
-import "./styles.scss";
+import './styles.scss';
 
-import initRouter from "@pawcode/routes";
+import initRouter from '@pawcode/routes';
 
-import routes from "./app/routes";
+import routes from './app/routes';
 
 const { navigateTo, router } = initRouter(routes);
 
