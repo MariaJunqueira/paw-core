@@ -6,7 +6,7 @@ PawCode is a modern frontend framework designed to simplify the development of w
 
 ## @pawIf Directive
 
-The `@pawIf` directive is a structural directive for conditionl rendering of DOM elements. It adds or removes elements from the DOM based on a specified boolean condition.
+The `@pawIf` directive is a structural directive for conditional rendering of DOM elements. It adds or removes elements from the DOM based on a specified boolean condition.
 
 ### Usage
 
