@@ -1,4 +1,3 @@
-
 # PawCode Framework
 
 ## Overview
@@ -17,8 +16,8 @@ To use the `@pawIf` directive, add it as an attribute to any HTML element within
 
 **Template (app.component.html):**
 ```html
-<div @pawIf="{{conditionA}}">
-  <div>This content will be shown or hidden based on conditionA.</div>
+<div @pawIf="{{condition}}">
+  <div>This content will be shown or hidden based on condition.</div>
 </div>
 ```
 
@@ -34,22 +33,22 @@ import { Component } from './stuff/decorators/component/component.decorator';
   styles: cssString,
 })
 export default class AppComponent {
-  conditionA = true;
+  condition = true;
 
   constructor() {
     console.log("AppComponent constructed!");
-    this.conditionA = false;
+    this.condition = false;
   }
 
   pawInit() {
     setTimeout(() => {
-      this.conditionA = true;
+      this.condition = true;
     }, 2000);
   }
 }
 ```
 
-In this example, `conditionA` is a property of `AppComponent`. The content within the `div` is only present in the DOM when `conditionA` is `true`.
+In this example, `condition` is a property of `AppComponent`. The content within the `div` is only present in the DOM when `condition` is `true`.
 
 ### Implementation Details
 
