@@ -1,27 +1,26 @@
-// app.component.ts
+// child.component.ts
 
-import BowlRouter from '@pawcode/routes';
-
-import templateString from './app.component.html';
-import cssString from './app.component.scss';
-import { Component } from './stuff/decorators/component/component.decorator';
+import { Component } from '../stuff/decorators/component/component.decorator';
+import { Observed } from '../stuff/decorators/observed.decorator';
+import templateString from './child.component.html';
+import cssString from './child.component.scss';
 
 const componentImports = {
-  "child-component": () => import("./child/child.component"),
+  // "component-selector": () => import("./component-selector/component-selector.component"),
   // other components...
 };
 
 @Component({
-  selector: "app-component",
+  selector: "child-component",
   template: templateString,
   styles: cssString,
   components: componentImports,
-  imports: [BowlRouter],
+  imports: [],
 })
-export default class AppComponent {
+export default class ChildComponent {
   conditionA = true;
   conditionB = false;
-  name = "Vitor";
+  @Observed() name = "Vitor";
   times = 1;
 
   constructor() {
