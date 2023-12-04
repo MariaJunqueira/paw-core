@@ -22,9 +22,6 @@ export function scopeHtml(
     return data[key];
   });
 
-  console.log(templatedHtml);
-
-
   const parser = new DOMParser();
   const doc = parser.parseFromString(templatedHtml, "text/html");
   doc.body.querySelectorAll("*").forEach((el) => {

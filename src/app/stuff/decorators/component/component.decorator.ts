@@ -25,21 +25,10 @@ export function Component(options: any): any {
 
       constructor(...args: any) {
         super();
-        // const instance = new OriginalClass(...args);
         this._instance = new OriginalClass(...args);
-        // Object.assign(this, instance);
-
-        // this.initializeComponent(this.originalOptions.template);
-
-        console.log(this._instance);
-
-        // if (typeof instance["pawInit"] === "function") {
-        //   instance["pawInit"].apply(this);
-        // }
       }
 
       connectedCallback() {
-        console.log('connectedCallback Started!');
         this.initDecorator();
       }
 
@@ -47,7 +36,6 @@ export function Component(options: any): any {
         Object.assign(this, this._instance);
         this.initializeData();
 
-        // console.log(this._data);
         let htmlString = this.originalOptions.template;
         const doc = this.parseHtmlString(htmlString);
 
@@ -55,8 +43,6 @@ export function Component(options: any): any {
         PawIfDirective(doc);
 
         this.initializeComponent(template);
-
-        // console.log(options.template);
 
         if (typeof this._instance["pawInit"] === "function") {
           this._instance["pawInit"].apply(this);
@@ -90,15 +76,16 @@ export function Component(options: any): any {
       }
 
       private handlePropertyChange(e: CustomEvent) {
-        // console.log(this._data);
+        if (e.detail.newValue !== e.detail.oldValue) {
+          this._data[e.detail.property] = e.detail.newValue;
+        }
+
         let htmlString = this.originalOptions.template;
         const doc = this.parseHtmlString(htmlString);
 
         let template = PawForDirective(doc, this._data);
-        console.log(template);
         PawIfDirective(doc);
 
-        // Update the innerHTML and re-render template on property change
         this.innerHTML = scopeHtml(
           template,
           (this.constructor as typeof OriginalClass & ComponentClass).styleId,
@@ -110,9 +97,6 @@ export function Component(options: any): any {
         const styleId = (this.constructor as typeof OriginalClass & ComponentClass).styleId;
         this.setAttribute(styleId, "");
         const scopedCssString = scopeCss(options.styles, styleId);
-
-        console.log(template);
-
         this.innerHTML = scopeHtml(template, styleId, this._data);
         (this.constructor as typeof OriginalClass & ComponentClass).appendScopedStyle(scopedCssString, styleId);
       }
@@ -129,13 +113,11 @@ export function Component(options: any): any {
       private initializeProperty(property: string) {
         let value = this[property];
         this._data[property] = value;
-
         // Handle Special Initialization
         if (this[`_${property}`]?.isFirstChange) {
           this[`_${property}`].isFirstChange = false;
           this._data[property] = this[`_${property}`].value;
         }
-
         // Define Propert Getters And Setters
         Object.defineProperty(this, property, {
           get: () => value,
@@ -167,8 +149,6 @@ export function Component(options: any): any {
           })
         );
       }
-
-
 
       attributeChangedCallback(
         name: string,

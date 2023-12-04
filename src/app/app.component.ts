@@ -33,6 +33,7 @@ export default class AppComponent {
   }
 
   pawInit() {
+    console.log("pawInit called");
     setTimeout(() => {
       this.conditionA = true;
       this.conditionB = false;
