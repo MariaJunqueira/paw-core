@@ -1,10 +1,6 @@
-# PawCode Framework
+# @pawFor Directive
 
 ## Overview
-
-PawCode is a modern frontend framework designed to simplify the development of web applications. It introduces powerful directives and decorators to enhance your HTML templates and TypeScript components.
-
-## @pawFor Directive
 
 The `@pawFor` directive in PawCode is a powerful tool for creating dynamic, iterative content in your web components. It allows you to loop through data and generate HTML elements based on a template. This directive is particularly useful for displaying lists, tables, or any repetitive content based on an array or range of values.
 
