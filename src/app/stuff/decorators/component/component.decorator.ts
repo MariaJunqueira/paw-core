@@ -26,21 +26,16 @@ export function Component(options: any): any {
       constructor(...args: any) {
         super();
         this._instance = new OriginalClass(...args);
+        Object.assign(this, this._instance);
       }
 
       connectedCallback() {
-        this.initDecorator();
-      }
-
-      initDecorator() {
-        Object.assign(this, this._instance);
         this.initializeData();
 
         const htmlString = this.originalOptions.template;
         const template = this.handleTemplate(htmlString);
 
         this.initializeComponent(template);
-
         if (typeof this._instance["pawInit"] === "function") {
           this._instance["pawInit"].apply(this);
         }
@@ -110,11 +105,13 @@ export function Component(options: any): any {
       private initializeProperty(property: string) {
         let value = this[property];
         this._data[property] = value;
+
         // Handle Special Initialization
         if (this[`_${property}`]?.isFirstChange) {
           this[`_${property}`].isFirstChange = false;
           this._data[property] = this[`_${property}`].value;
         }
+
         // Define Propert Getters And Setters
         Object.defineProperty(this, property, {
           get: () => value,
