@@ -1,15 +1,23 @@
 // if.directive.ts
 
-export function PawIfDirective(rootElement) {
+export function PawIfDirective(rootElement, variables) {
   const elements = rootElement.querySelectorAll('[\\@pawIf]');
+
   elements.forEach(element => {
+    // Ensure the element is part of the DOM
+    if (!element.parentNode) {
+      console.warn('Element with pawIf is not in the DOM', element);
+      return;
+    }
+
     if (!element.__pawIfState) {
       const placeholder = document.createComment('@pawIf placeholder');
       element.parentNode.insertBefore(placeholder, element);
       element.__pawIfState = { placeholder };
     }
 
-    const conditionAttr = element.getAttribute('@pawIf');
+    let conditionAttr = element.getAttribute('@pawIf');
+    conditionAttr = replacePlaceholders(conditionAttr, variables);
     const condition = evaluateCondition(conditionAttr);
 
     const { placeholder } = element.__pawIfState;
@@ -21,6 +29,14 @@ export function PawIfDirective(rootElement) {
       placeholder.parentNode.removeChild(element);
     }
   });
+}
+
+function replacePlaceholders(pawIfValue, variables) {
+  Object.keys(variables).forEach((key) => {
+    const regex = new RegExp(`{{\\s*${key}\\s*}}`, "g");
+    pawIfValue = pawIfValue.replace(regex, variables[key]);
+  });
+  return pawIfValue;
 }
 
 function evaluateCondition(value: string): boolean {

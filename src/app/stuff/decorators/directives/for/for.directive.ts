@@ -1,9 +1,6 @@
 // for.directive.ts
 
 export function PawForDirective(rootElement, variables) {
-  // console.log(variables);
-
-  let rendered = rootElement;
   const elements = rootElement.querySelectorAll('[\\@pawFor]');
 
   elements.forEach(element => {
@@ -28,11 +25,8 @@ export function PawForDirective(rootElement, variables) {
     const loopParams = parseLoopParameters(pawForValue);
     clearLoopElements(placeholder);
 
-    rendered = renderLoopElements(placeholder, originalElement, loopParams);
+    rootElement = renderLoopElements(placeholder, originalElement, loopParams);
   });
-  // console.log(rendered);
-
-  return rendered.innerHTML;
 }
 
 function replacePlaceholders(pawForValue, variables) {
@@ -40,8 +34,6 @@ function replacePlaceholders(pawForValue, variables) {
     const regex = new RegExp(`{{\\s*${key}\\s*}}`, "g");
     pawForValue = pawForValue.replace(regex, variables[key]);
   });
-  // console.log('replacePlaceholders', pawForValue);
-
   return pawForValue;
 }
 

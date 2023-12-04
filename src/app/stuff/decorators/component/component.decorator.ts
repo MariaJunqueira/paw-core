@@ -36,11 +36,8 @@ export function Component(options: any): any {
         Object.assign(this, this._instance);
         this.initializeData();
 
-        let htmlString = this.originalOptions.template;
-        const doc = this.parseHtmlString(htmlString);
-
-        let template = PawForDirective(doc, this._data);
-        PawIfDirective(doc);
+        const htmlString = this.originalOptions.template;
+        const template = this.handleTemplate(htmlString);
 
         this.initializeComponent(template);
 
@@ -49,11 +46,29 @@ export function Component(options: any): any {
         }
       }
 
-      static get observedAttributes() {
-        return Array.from(this.observedAttributesSet);
+      private handlePropertyChange(e: CustomEvent) {
+        if (e.detail.newValue !== e.detail.oldValue) {
+          this._data[e.detail.property] = e.detail.newValue;
+        }
+
+        const htmlString = this.originalOptions.template;
+        const template = this.handleTemplate(htmlString);
+
+        this.innerHTML = scopeHtml(
+          template,
+          (this.constructor as typeof OriginalClass & ComponentClass).styleId,
+          this._data
+        );
       }
 
-      private parseHtmlString(htmlString) {
+      private handleTemplate(htmlString: string): string {
+        const doc = this.parseHtmlString(htmlString);
+        PawForDirective(doc, this._data);
+        PawIfDirective(doc, this._data);
+        return doc.body.innerHTML;
+      }
+
+      private parseHtmlString(htmlString: string): Document {
         const parser = new DOMParser();
         return parser.parseFromString(htmlString, "text/html");
       }
@@ -73,24 +88,6 @@ export function Component(options: any): any {
         this._data = {};
         this.addEventListener("property-changed", this.handlePropertyChange.bind(this));
         properties.forEach((property) => this.initializeProperty(property));
-      }
-
-      private handlePropertyChange(e: CustomEvent) {
-        if (e.detail.newValue !== e.detail.oldValue) {
-          this._data[e.detail.property] = e.detail.newValue;
-        }
-
-        let htmlString = this.originalOptions.template;
-        const doc = this.parseHtmlString(htmlString);
-
-        let template = PawForDirective(doc, this._data);
-        PawIfDirective(doc);
-
-        this.innerHTML = scopeHtml(
-          template,
-          (this.constructor as typeof OriginalClass & ComponentClass).styleId,
-          this._data
-        );
       }
 
       private initializeStyles(template) {
@@ -177,6 +174,10 @@ export function Component(options: any): any {
             },
           })
         );
+      }
+
+      static get observedAttributes() {
+        return Array.from(this.observedAttributesSet);
       }
 
     } as unknown as T;
