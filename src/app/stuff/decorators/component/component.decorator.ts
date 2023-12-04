@@ -7,8 +7,8 @@ import { loadDynamicComponents } from './dynamic-component.loader';
 
 export interface ComponentClass {
   new(...args: any[]): HTMLElement;
-  observedAttributesSet?: Set<string>;
-  appendScopedStyle?: (scopedCssString: string, styleId: string) => void;
+  observedAttributesSet: Set<string>;
+  appendScopedStyle: (scopedCssString: string, styleId: string) => void;
   styleId: string;
 }
 
