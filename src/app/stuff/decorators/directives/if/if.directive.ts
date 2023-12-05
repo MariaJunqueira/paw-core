@@ -1,8 +1,7 @@
 // if.directive.ts
-
 export function PawIfDirective(rootElement, variables) {
   const elements = rootElement.querySelectorAll('[\\@pawIf]');
-
+  const bindings = new Map();
   elements.forEach(element => {
     // Ensure the element is part of the DOM
     if (!element.parentNode) {
@@ -17,30 +16,64 @@ export function PawIfDirective(rootElement, variables) {
     }
 
     let conditionAttr = element.getAttribute('@pawIf');
-    conditionAttr = replacePlaceholders(conditionAttr, variables);
-    const condition = evaluateCondition(conditionAttr);
+    const type = determineType(conditionAttr);
 
+    if (type === 'variable') {
+      const variableName = conditionAttr.trim();
+      bindings.set(element, variableName);
+      updateElementVisibility(element, variables[variableName]);
+    } else {
+      const evaluatedCondition = evaluateLiteralCondition(conditionAttr);
+      updateElementVisibility(element, evaluatedCondition);
+    }
+  });
+
+  // Check if the attribute is a variable name, boolean, or string
+  function determineType(attr) {
+    if (attr === 'true' || attr === 'false') return 'boolean';
+    if (attr.match(/^[\w\d_]+$/)) return 'variable';
+    return 'literal';
+  }
+
+  function evaluateLiteralCondition(value) {
+    if (value === 'true') return true;
+    if (value === 'false') return false;
+    // Additional logic for string literals or other types
+    return value;
+  }
+
+  // Function to update element visibility
+  function updateElementVisibility(element, value) {
     const { placeholder } = element.__pawIfState;
     const isAttached = placeholder.nextSibling === element;
+    const condition = evaluateCondition(value);
 
     if (condition && !isAttached) {
       placeholder.parentNode.insertBefore(element, placeholder.nextSibling);
     } else if (!condition && isAttached) {
       placeholder.parentNode.removeChild(element);
     }
-  });
+  }
+
+
+  function updateOnVariableChange(variableName, newValue) {
+    bindings.forEach((vName, element) => {
+      if (vName === variableName) {
+        updateElementVisibility(element, newValue);
+      }
+    });
+  }
+
+  function evaluateCondition(value: string): boolean {
+    if (value === 'true') return true;
+    if (value === 'false') return false;
+    return Boolean(value);
+  }
+
+  // Return an object that allows for updating on variable changes
+  return {
+    updateOnVariableChange
+  };
 }
 
-function replacePlaceholders(pawIfValue, variables) {
-  Object.keys(variables).forEach((key) => {
-    const regex = new RegExp(`{{\\s*${key}\\s*}}`, "g");
-    pawIfValue = pawIfValue.replace(regex, variables[key]);
-  });
-  return pawIfValue;
-}
 
-function evaluateCondition(value: string): boolean {
-  if (value === 'true') return true;
-  if (value === 'false') return false;
-  return Boolean(value);
-}

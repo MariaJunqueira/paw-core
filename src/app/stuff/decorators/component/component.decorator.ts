@@ -1,6 +1,5 @@
 // component.decorator.ts
 
-import { PawForDirective } from '../directives/for/for.directive';
 import { PawIfDirective } from '../directives/if/if.directive';
 import { scopeCss, scopeHtml } from './component.helper';
 import { loadDynamicComponents } from './dynamic-component.loader';
@@ -22,6 +21,7 @@ export function Component(options: any): any {
       private originalOptions = options;
 
       private _instance;
+      private _pawIfInstance;
 
       constructor(...args: any) {
         super();
@@ -30,37 +30,46 @@ export function Component(options: any): any {
       }
 
       connectedCallback() {
-        this.initializeData();
-
-        const htmlString = this.originalOptions.template;
-        const template = this.handleTemplate(htmlString);
-
-        this.initializeComponent(template);
         if (typeof this._instance["pawInit"] === "function") {
           this._instance["pawInit"].apply(this);
         }
+
+        this.initializeData();
+        this.initializeComponent(this.originalOptions.template);
+        this.createPawIfInstance();
+        // this.handleTemplate();
+
       }
 
       private handlePropertyChange(e: CustomEvent) {
+
         if (e.detail.newValue !== e.detail.oldValue) {
           this._data[e.detail.property] = e.detail.newValue;
         }
 
-        const htmlString = this.originalOptions.template;
-        const template = this.handleTemplate(htmlString);
-
-        this.innerHTML = scopeHtml(
-          template,
-          (this.constructor as typeof OriginalClass & ComponentClass).styleId,
-          this._data
-        );
+        this.createPawIfInstance();
+        this._pawIfInstance.updateOnVariableChange(e.detail.property, e.detail.newValue)
       }
 
-      private handleTemplate(htmlString: string): string {
-        const doc = this.parseHtmlString(htmlString);
-        PawForDirective(doc, this._data);
-        PawIfDirective(doc, this._data);
-        return doc.body.innerHTML;
+      // const template = this.handleTemplate(this.innerHTML);
+
+      // this.innerHTML = scopeHtml(
+      //   this.innerHTML,
+      //   (this.constructor as typeof OriginalClass & ComponentClass).styleId,
+      //   this._data
+      // );
+
+      createPawIfInstance() {
+        if (!this._pawIfInstance) {
+          this._pawIfInstance = PawIfDirective(this, this._data);
+        }
+      }
+
+
+      private handleTemplate() {
+        // PawForDirective(doc, this._data);
+        PawIfDirective(this, this._data);
+        // return doc.body.innerHTML;
       }
 
       private parseHtmlString(htmlString: string): Document {
