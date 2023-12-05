@@ -33,7 +33,6 @@ export default class AppComponent {
   }
 
   newMethod(value: number) {
-    console.log('newMethod called!', value);
     this.times += value;
     this.name = `${this.name} ${value}`;
   }

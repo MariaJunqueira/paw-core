@@ -50,6 +50,7 @@ export function Component(options: any): any {
 
       private handlePropertyChange(e: CustomEvent) {
         if (e.detail.newValue !== e.detail.oldValue) {
+          this._instance[e.detail.property] = e.detail.newValue;
           this._data[e.detail.property] = e.detail.newValue;
         }
 
