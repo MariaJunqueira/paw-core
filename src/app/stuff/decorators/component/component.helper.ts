@@ -32,3 +32,7 @@ export function scopeHtml(
 
   return doc.body.innerHTML;
 }
+
+export function getUID(): string {
+  return `_${String(Date.now().toString(36) + Math.random().toString(36)).replace(/\./g, '')}`;
+}
