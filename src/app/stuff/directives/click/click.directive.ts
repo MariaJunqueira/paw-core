@@ -1,20 +1,24 @@
 class PawClickDirective {
-  private rootElement: HTMLElement;
+  private context: any;
 
-  constructor(private context: any, rootElement: HTMLElement) {
-    this.rootElement = rootElement;
+  constructor(private rootElement: HTMLElement) {
+    this.context = (rootElement as any)._instance;
     this.bindEvent();
   }
 
   private bindEvent(): void {
-    this.rootElement.addEventListener("click", (event) =>
-      this.handleEvent(event)
-    );
+    const elements = this.rootElement.querySelectorAll('[\\pawClick]');
+
+    elements.forEach((element) => {
+      element.addEventListener('click', (e) => {
+        this.handleEvent(e);
+      });
+    });
   }
 
   private handleEvent(event: Event): void {
     const target = event.target as HTMLElement;
-    const directiveValue = target.getAttribute("pawClick");
+    const directiveValue = target.getAttribute('pawClick');
 
     if (directiveValue) {
       const methodMatch = directiveValue.match(/(\w+)\((.*)\)/);
@@ -27,7 +31,8 @@ class PawClickDirective {
         );
 
         const method = this.context[methodName];
-        if (typeof method === "function") {
+        if (typeof method === 'function') {
+          // this.context[method].apply(methodArgs);
           method.apply(this.context, methodArgs);
         }
       }
@@ -42,12 +47,12 @@ class PawClickDirective {
     return args.map((arg) => {
       if (this.isObjectLiteral(arg)) {
         console.warn(
-          "Direct object literals are not supported. Please define the object in your component."
+          'Direct object literals are not supported. Please define the object in your component.'
         );
         return undefined;
       } else if (this.isArray(arg)) {
         console.warn(
-          "Arrays are not supported. Please define the array in your component."
+          'Arrays are not supported. Please define the array in your component.'
         );
         return undefined;
       } else {
@@ -57,11 +62,11 @@ class PawClickDirective {
   }
 
   private isArray(arg: string): boolean {
-    return arg.trim().startsWith("[") && arg.trim().endsWith("]");
+    return arg.trim().startsWith('[') && arg.trim().endsWith(']');
   }
 
   private isObjectLiteral(arg: string): boolean {
-    return arg.trim().startsWith("{") && arg.trim().endsWith("}");
+    return arg.trim().startsWith('{') && arg.trim().endsWith('}');
   }
 
   private parseSingleArgument(arg: any, currentElement: HTMLElement): any {
@@ -75,8 +80,8 @@ class PawClickDirective {
     // Handle boolean and numeric literals
     else if (!isNaN(parseFloat(arg))) {
       return parseFloat(arg);
-    } else if (arg === "true" || arg === "false") {
-      return arg === "true";
+    } else if (arg === 'true' || arg === 'false') {
+      return arg === 'true';
     }
     // Treat as a variable reference
     else {
@@ -89,7 +94,7 @@ class PawClickDirective {
     currentElement: HTMLElement
   ): any {
     // Check if the current element has an attribute 'paw-iterator'
-    const iteratorName = currentElement.getAttribute("paw-iterator");
+    const iteratorName = currentElement.getAttribute('paw-iterator');
     if (iteratorName && iteratorName === variableName) {
       // If the iterator name matches variableName, return its value
       return this.getIteratorValue(currentElement);
@@ -101,7 +106,7 @@ class PawClickDirective {
 
   private getIteratorValue(element: HTMLElement): any {
     // Logic to get the value of the iterator
-    return element.getAttribute("paw-index");
+    return element.getAttribute('paw-index');
   }
 }
 

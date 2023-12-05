@@ -28,7 +28,13 @@ export function Component(options: any): any {
       constructor(...args: any) {
         super();
         this._instance = new OriginalClass(...args);
-        Object.assign(this, this._instance);
+        Object.keys(this._instance).forEach((key) => {
+          this[key] = this._instance[key];
+        });
+
+        if (typeof this._instance['pawInit'] === 'function') {
+          this._instance['pawInit'].apply(this);
+        }
       }
 
       connectedCallback() {
@@ -38,9 +44,8 @@ export function Component(options: any): any {
         const template = this.handleTemplate(htmlString);
 
         this.initializeComponent(template);
-        if (typeof this._instance['pawInit'] === 'function') {
-          this._instance['pawInit'].apply(this);
-        }
+
+        new PawClickDirective(this);
       }
 
       private handlePropertyChange(e: CustomEvent) {
@@ -56,13 +61,14 @@ export function Component(options: any): any {
           (this.constructor as typeof OriginalClass & ComponentClass).styleId,
           this._data
         );
+
+        new PawClickDirective(this);
       }
 
       private handleTemplate(htmlString: string): string {
         const doc = this.parseHtmlString(htmlString);
         PawForDirective(doc, this._data);
         PawIfDirective(doc, this._data);
-        new PawClickDirective(this._instance, doc.body);
         return doc.body.innerHTML;
       }
 
@@ -81,24 +87,34 @@ export function Component(options: any): any {
         const observedAttributes = (
           this.constructor as typeof OriginalClass & ComponentClass
         ).observedAttributesSet;
+
         let properties = observedAttributes
           ? Array.from(observedAttributes)
           : [];
-        properties = properties.concat(Object.getOwnPropertyNames(this));
 
         this._data = {};
         this.addEventListener(
           'property-changed',
           this.handlePropertyChange.bind(this)
         );
-        properties.forEach((property) => this.initializeProperty(property));
+
+        properties.forEach((property) =>
+          this.initializeProperty(property, this)
+        );
+
+        Object.getOwnPropertyNames(this).forEach((property) =>
+          this.initializeProperty(property, this)
+        );
+
+        Object.getOwnPropertyNames(this._instance).forEach((property) =>
+          this.initializeProperty(property, this._instance)
+        );
       }
 
       private initializeStyles(template) {
         const styleId = (
           this.constructor as typeof OriginalClass & ComponentClass
         ).styleId;
-        this.setAttribute(styleId, '');
         const scopedCssString = scopeCss(options.styles, styleId);
         this.innerHTML = scopeHtml(template, styleId, this._data);
         (
@@ -115,18 +131,19 @@ export function Component(options: any): any {
         }
       }
 
-      private initializeProperty(property: string) {
-        let value = this[property];
+      private initializeProperty(property: string, instance: any) {
+        let value = instance[property];
         this._data[property] = value;
 
         // Handle Special Initialization
-        if (this[`_${property}`]?.isFirstChange) {
-          this[`_${property}`].isFirstChange = false;
-          this._data[property] = this[`_${property}`].value;
+        if (instance[`_${property}`]?.isFirstChange) {
+          instance[`_${property}`].isFirstChange = false;
+          instance[property] = instance[`_${property}`].value;
+          instance._data[property] = instance[`_${property}`].value;
         }
 
         // Define Propert Getters And Setters
-        Object.defineProperty(this, property, {
+        Object.defineProperty(instance, property, {
           get: () => value,
           set: (newValue) => {
             const oldValue = value;
@@ -162,12 +179,14 @@ export function Component(options: any): any {
         oldValue: string,
         newValue: string
       ) {
-        if (this._isFullyConstructed) {
-          if (this.hasOwnProperty(name)) {
-            this[name] = newValue;
-          }
-          this.dispatchPropertyChangedEvent(name, oldValue, newValue);
+        if (
+          this._instance.hasOwnProperty(name) ||
+          this._instance.hasOwnProperty(`_${name}`)
+        ) {
+          this._instance[name] = newValue;
+          this[name] = newValue;
         }
+        this.dispatchPropertyChangedEvent(name, oldValue, newValue);
       }
 
       private dispatchPropertyChangedEvent(

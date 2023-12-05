@@ -11,46 +11,44 @@ const componentImports = {
 };
 
 @Component({
-  selector: "child-component",
+  selector: 'child-component',
   template: templateString,
   styles: cssString,
   components: componentImports,
   imports: [],
 })
 export default class ChildComponent {
+  @Observed() name = 'Vitor';
   conditionA = true;
   conditionB = false;
-  @Observed() name = "Vitor";
   times = 1;
 
   constructor() {
-    console.log("AppComponent constructed!");
+    console.log('Child constructed!');
     this.conditionA = false;
     this.conditionB = true;
-    this.name = "Maria";
+    this.name = 'Pikachu';
     this.times = 2;
   }
 
   pawInit() {
-    console.log("pawInit called");
+    console.log('pawInit called');
     setTimeout(() => {
       this.conditionA = true;
       this.conditionB = false;
-      this.name = "Dália";
+      this.name = 'Dália';
       this.times = 3;
     }, 1000);
-
     setTimeout(() => {
       this.conditionA = false;
       this.conditionB = true;
-      this.name = "Mia";
+      this.name = 'Mia';
       this.times = 4;
     }, 2000);
-
     setTimeout(() => {
       this.conditionA = true;
       this.conditionB = false;
-      this.name = "Mia e Dália";
+      this.name = 'Mia e Dália';
       this.times = 1;
     }, 3000);
   }
