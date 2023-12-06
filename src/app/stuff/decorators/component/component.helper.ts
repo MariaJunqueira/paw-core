@@ -14,21 +14,52 @@ export function scopeCss(css: string, styleId: string): string {
 }
 
 export function scopeHtml(
-  html: string,
+  html: HTMLElement,
   styleId: string,
   data: any = {}
 ): string {
-  const templatedHtml = html.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, key) => {
-    return data[key];
-  });
-
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(templatedHtml, "text/html");
-  doc.body.querySelectorAll("*").forEach((el) => {
+  html.querySelectorAll("*").forEach((el) => {
     if (!el.tagName.includes("-")) {
       el.setAttribute(styleId, "");
     }
   });
 
-  return doc.body.innerHTML;
+  return html.innerHTML;
+}
+
+export function replaceVariables(html: HTMLElement, data: any = {}) {
+  const regex = /{{(.*?)}}/g; // Regular expression to match placeholders
+
+  function interpolateText(node) {
+    node.textContent = node.textContent.replace(regex, (match, key) => {
+      const value = data[key.trim()]; // Get the value from the data object
+      return value !== undefined ? value : match; // Replace with value or keep the placeholder if not found
+    });
+  }
+
+  function traverse(node) {
+    if (node.nodeType === 1) {
+      // Element node, recursively traverse its child nodes
+      for (let i = 0; i < node.childNodes.length; i++) {
+        traverse(node.childNodes[i]);
+      }
+    } else if (node.nodeType === 3) {
+      // Text node, interpolate its content
+      interpolateText(node);
+    }
+  }
+
+  traverse(html);
+
+  return html;
+
+  // // console.log(html, data.times);
+
+  // html.innerHTML = html.innerHTML.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, key) => {
+  //   return data[key];
+  // });
+
+  // console.log(html.innerHTML);
+  // return html;
+
 }

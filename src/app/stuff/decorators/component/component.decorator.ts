@@ -1,6 +1,8 @@
 // component.decorator.ts
 
+import { PawForDirective } from '../directives/for/for.directive';
 import { PawIfDirective } from '../directives/if/if.directive';
+import { InterpolatorDirective } from '../directives/interpolator/interpolator.directive';
 import { scopeCss, scopeHtml } from './component.helper';
 import { loadDynamicComponents } from './dynamic-component.loader';
 
@@ -22,6 +24,8 @@ export function Component(options: any): any {
 
       private _instance;
       private _pawIfInstance;
+      private _pawForInstance;
+      private _interpolatorInstance;
 
       constructor(...args: any) {
         super();
@@ -36,9 +40,10 @@ export function Component(options: any): any {
 
         this.initializeData();
         this.initializeComponent(this.originalOptions.template);
-        this.createPawIfInstance();
-        // this.handleTemplate();
 
+        this.createPawIfInstance();
+        this.createPawForInstance();
+        this.createInterpolatorInstance();
       }
 
       private handlePropertyChange(e: CustomEvent) {
@@ -48,7 +53,12 @@ export function Component(options: any): any {
         }
 
         this.createPawIfInstance();
-        this._pawIfInstance.updateOnVariableChange(e.detail.property, e.detail.newValue)
+        this._pawIfInstance.updateOnVariableChange(e.detail.property, e.detail.newValue);
+        this.createPawForInstance();
+        this._pawForInstance.updateOnVariableChange(e.detail.property, e.detail.newValue);
+        this.createInterpolatorInstance();
+        this._interpolatorInstance.updateOnVariableChange(e.detail.property, e.detail.newValue);
+
       }
 
       // const template = this.handleTemplate(this.innerHTML);
@@ -65,16 +75,16 @@ export function Component(options: any): any {
         }
       }
 
-
-      private handleTemplate() {
-        // PawForDirective(doc, this._data);
-        PawIfDirective(this, this._data);
-        // return doc.body.innerHTML;
+      createPawForInstance() {
+        if (!this._pawForInstance) {
+          this._pawForInstance = PawForDirective(this, this._data);
+        }
       }
 
-      private parseHtmlString(htmlString: string): Document {
-        const parser = new DOMParser();
-        return parser.parseFromString(htmlString, "text/html");
+      createInterpolatorInstance() {
+        if (!this._interpolatorInstance) {
+          this._interpolatorInstance = InterpolatorDirective(this, this._data);
+        }
       }
 
       private initializeComponent(template) {
@@ -98,7 +108,11 @@ export function Component(options: any): any {
         const styleId = (this.constructor as typeof OriginalClass & ComponentClass).styleId;
         this.setAttribute(styleId, "");
         const scopedCssString = scopeCss(options.styles, styleId);
-        this.innerHTML = scopeHtml(template, styleId, this._data);
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(template, "text/html");
+        this.innerHTML = scopeHtml(doc.body, styleId, this._data);
+
         (this.constructor as typeof OriginalClass & ComponentClass).appendScopedStyle(scopedCssString, styleId);
       }
 

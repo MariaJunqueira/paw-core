@@ -24,7 +24,7 @@ export default class ChildComponent {
   times = 1;
 
   constructor() {
-    console.log("AppComponent constructed!");
+    console.log("ChildComponent constructed!");
     this.conditionA = false;
     this.conditionB = true;
     this.name = "Maria";
@@ -32,7 +32,7 @@ export default class ChildComponent {
   }
 
   pawInit() {
-    console.log("pawInit called");
+    console.log("child - pawInit called");
     setTimeout(() => {
       this.conditionA = true;
       this.conditionB = false;
