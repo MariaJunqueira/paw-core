@@ -43,14 +43,14 @@ export default class ChildComponent {
     setTimeout(() => {
       this.conditionA = false;
       this.conditionB = true;
-      this.name = "Mia";
+      this.name = "Pikachu";
       this.times = 4;
     }, 2000);
 
     setTimeout(() => {
       this.conditionA = true;
       this.conditionB = false;
-      this.name = "Mia e Dália";
+      this.name = "Venusaur";
       this.times = 1;
     }, 3000);
   }
