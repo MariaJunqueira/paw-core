@@ -34,16 +34,19 @@ export function Component(options: any): any {
       }
 
       connectedCallback() {
-        if (typeof this._instance["pawInit"] === "function") {
-          this._instance["pawInit"].apply(this);
-        }
 
         this.initializeData();
         this.initializeComponent(this.originalOptions.template);
 
+        // TODO: this should be done after initialization, needs to guarantee that the component template is already rendered
         this.createPawIfInstance();
         this.createPawForInstance();
         this.createInterpolatorInstance();
+
+        if (typeof this._instance["pawInit"] === "function") {
+          this._instance["pawInit"].apply(this);
+        }
+
       }
 
       private handlePropertyChange(e: CustomEvent) {
