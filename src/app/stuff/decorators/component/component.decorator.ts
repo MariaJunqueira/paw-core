@@ -91,7 +91,6 @@ export function Component(options: any): any {
       }
 
       private initializeComponent(template) {
-        this.initializeData();
         this.initializeStyles(template);
         loadDynamicComponents(options.components);
         this._isFullyConstructed = true;
