@@ -60,5 +60,6 @@ export default class AppComponent {
       this.name = "Mia e Dália";
       this.times = 4;
     }, 3000);
+
   }
 }
