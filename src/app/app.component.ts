@@ -34,25 +34,31 @@ export default class AppComponent {
 
   pawInit() {
     console.log("pawInit called");
-    setTimeout(() => {
-      this.conditionA = true;
-      this.conditionB = false;
-      this.name = "Dália";
-      this.times = 3;
-    }, 1000);
+
+    this.conditionA = true;
+    this.conditionB = false;
+    this.name = "Vitor";
+    this.times = 3;
 
     setTimeout(() => {
       this.conditionA = false;
       this.conditionB = true;
-      this.name = "Mia";
-      this.times = 4;
-    }, 2000);
+      this.name = "Dália";
+      this.times = 2;
+    }, 1000);
 
     setTimeout(() => {
       this.conditionA = true;
       this.conditionB = false;
+      this.name = "Mia";
+      this.times = 3;
+    }, 2000);
+
+    setTimeout(() => {
+      this.conditionA = false;
+      this.conditionB = true;
       this.name = "Mia e Dália";
-      this.times = 1;
+      this.times = 4;
     }, 3000);
   }
 }

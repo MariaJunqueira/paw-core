@@ -8,19 +8,19 @@
   </div>
   <div>-----------------------------</div>
   <div @pawIf="false">
-    <div>This content will never shown based on the condition. Hello {{name}}!</div>
+    <div>FALSE: This content will never shown based on the condition. Hello {{name}}!</div>
   </div>
   <div>-----------------------------</div>
   <div @pawIf="true">
-    <div>This content will be shown all the time based on the condition. Hello {{name}}!</div>
+    <div>TRUE: This content will be shown all the time based on the condition. Hello {{name}}!</div>
   </div>
   <div>-----------------------------</div>
   <div @pawIf="conditionA">
-    <div>This content A will be shown or hidden based on the condition. Hello {{name}}!</div>
+    <div>CONDITION A: This content A will be shown or hidden based on the condition. Hello {{name}}!</div>
   </div>
   <div>-----------------------------</div>
   <div @pawIf="conditionB">
-    <div>This content B will be shown or hidden based on the condition. Hello {{name}}!</div>
+    <div>CONDITION B: This content B will be shown or hidden based on the condition. Hello {{name}}!</div>
   </div>
   <div>-----------------------------</div>
   <!-- <div @pawFor="let index=0; index<{{times}}; index++">
