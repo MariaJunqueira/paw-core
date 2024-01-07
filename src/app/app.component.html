@@ -3,10 +3,6 @@
   <h1>PawCode - Hello World! {{ name }}</h1>
   <bowl-router></bowl-router>
   <div>-----------------------------</div>
-  <div @pawFor="let index=0; index<times; index++">
-    <div>This content will be iterated based on times value: {{times}}. Index: {{index}} - {{name}}!</div>
-  </div>
-  <div>-----------------------------</div>
   <div @pawIf="false">
     <div>FALSE: This content will never shown based on the condition. Hello {{name}}!</div>
   </div>
@@ -23,8 +19,12 @@
     <div>CONDITION B: This content B will be shown or hidden based on the condition. Hello {{name}}!</div>
   </div>
   <div>-----------------------------</div>
-  <!-- <div @pawFor="let index=0; index<{{times}}; index++">
-    <div>This content will be iterated based on times value: {{times}}. Index: {{index}}!</div>
-  </div> -->
+  <div @pawFor="let index=0; index<times; index++">
+    <div>This content will be iterated based on times value: {{times}}. Index: {{index}} - {{name}}!</div>
+  </div>
+  <div>-----------------------------</div>
+  <div @pawFor="let index=0; index<{{times}}; index++">
+    <div>This content will be iterated based on times value: {{times}}. Index: {{index}} - {{name}}!</div>
+  </div>
 </section>
 <child-component name="'Pikachu'"></child-component>
