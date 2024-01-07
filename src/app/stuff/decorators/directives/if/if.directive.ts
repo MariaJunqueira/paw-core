@@ -1,4 +1,5 @@
 // if.directive.ts
+
 export function PawIfDirective(rootElement, variables) {
   const elements = rootElement.querySelectorAll('[\\@pawIf]');
   const bindings = new Map();

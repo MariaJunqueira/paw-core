@@ -34,7 +34,6 @@ export function Component(options: any): any {
       }
 
       connectedCallback() {
-
         this.initializeData();
         this.initializeComponent(this.originalOptions.template);
 
@@ -46,31 +45,19 @@ export function Component(options: any): any {
         if (typeof this._instance["pawInit"] === "function") {
           this._instance["pawInit"].apply(this);
         }
-
       }
 
       private handlePropertyChange(e: CustomEvent) {
-
         if (e.detail.newValue !== e.detail.oldValue) {
           this._data[e.detail.property] = e.detail.newValue;
         }
-
-        this.createPawIfInstance();
-        this._pawIfInstance.updateOnVariableChange(e.detail.property, e.detail.newValue);
         this.createPawForInstance();
         this._pawForInstance.updateOnVariableChange(e.detail.property, e.detail.newValue);
         this.createInterpolatorInstance();
         this._interpolatorInstance.updateOnVariableChange(e.detail.property, e.detail.newValue);
-
+        this.createPawIfInstance();
+        this._pawIfInstance.updateOnVariableChange(e.detail.property, e.detail.newValue);
       }
-
-      // const template = this.handleTemplate(this.innerHTML);
-
-      // this.innerHTML = scopeHtml(
-      //   this.innerHTML,
-      //   (this.constructor as typeof OriginalClass & ComponentClass).styleId,
-      //   this._data
-      // );
 
       createPawIfInstance() {
         if (!this._pawIfInstance) {

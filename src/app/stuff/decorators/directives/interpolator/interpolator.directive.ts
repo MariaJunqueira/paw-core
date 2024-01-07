@@ -1,3 +1,5 @@
+// interpolator.directive.ts
+
 export function InterpolatorDirective(element, data) {
   const regex = /{{(.*?)}}/g; // Regular expression to match placeholders
   const originalTextContentMap = new Map(); // Map to store original text content of text nodes
@@ -41,6 +43,16 @@ export function InterpolatorDirective(element, data) {
       interpolateText(node);
     });
   }
+
+  // Make data reactive using a Proxy
+  data = new Proxy(data, {
+    set(target, property, value) {
+      target[property] = value;
+      resetTextNodes();
+      reinterpolateTextNodes();
+      return true;
+    }
+  });
 
   // Example usage to reset and reinterpolate when a property changes
   function updateOnVariableChange(propertyName, newValue) {
