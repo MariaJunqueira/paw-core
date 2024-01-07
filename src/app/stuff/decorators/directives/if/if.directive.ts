@@ -2,6 +2,7 @@
 export function PawIfDirective(rootElement, variables) {
   const elements = rootElement.querySelectorAll('[\\@pawIf]');
   const bindings = new Map();
+
   elements.forEach(element => {
     // Ensure the element is part of the DOM
     if (!element.parentNode) {
@@ -55,12 +56,18 @@ export function PawIfDirective(rootElement, variables) {
     }
   }
 
-
+  // Optimized function to update element visibility on variable change
   function updateOnVariableChange(variableName, newValue) {
+    // Collect elements that need updating
+    const elementsToUpdate = [];
     bindings.forEach((vName, element) => {
       if (vName === variableName) {
-        updateElementVisibility(element, newValue);
+        elementsToUpdate.push({ element, newValue });
       }
+    });
+    // Batch DOM updates
+    elementsToUpdate.forEach(({ element, newValue }) => {
+      updateElementVisibility(element, newValue);
     });
   }
 
@@ -75,5 +82,3 @@ export function PawIfDirective(rootElement, variables) {
     updateOnVariableChange
   };
 }
-
-
