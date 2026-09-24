@@ -1,5 +1,10 @@
 # PawCode Framework
 
+## Overview
+
+PawCode is a modern frontend framework designed to simplify the development of web applications. It introduces powerful directives and decorators to enhance your HTML templates and TypeScript components.
+
+
 ## Running commands
 
 To compile the typescript
