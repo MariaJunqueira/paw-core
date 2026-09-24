@@ -2,7 +2,7 @@
 
 import { PawForDirective } from '../directives/for/for.directive';
 import { PawIfDirective } from '../directives/if/if.directive';
-import { scopeCss, scopeHtml } from './component.helper';
+import { getUID, scopeCss, scopeHtml } from './component.helper';
 import { loadDynamicComponents } from './dynamic-component.loader';
 
 export interface ComponentClass {
@@ -15,7 +15,7 @@ export interface ComponentClass {
 export function Component(options: any): any {
   return function <T extends ComponentClass>(OriginalClass: T) {
     return class extends HTMLElement {
-      static styleId = `_${options.selector}-${Date.now()}`;
+      static styleId = getUID();
       static observedAttributesSet = OriginalClass.observedAttributesSet || new Set();
       private _isFullyConstructed = false;
       private _data;
@@ -69,7 +69,6 @@ export function Component(options: any): any {
       }
 
       private initializeComponent(template) {
-        this.initializeData();
         this.initializeStyles(template);
         loadDynamicComponents(options.components);
         this._isFullyConstructed = true;
@@ -87,7 +86,6 @@ export function Component(options: any): any {
 
       private initializeStyles(template) {
         const styleId = (this.constructor as typeof OriginalClass & ComponentClass).styleId;
-        this.setAttribute(styleId, "");
         const scopedCssString = scopeCss(options.styles, styleId);
         this.innerHTML = scopeHtml(template, styleId, this._data);
         (this.constructor as typeof OriginalClass & ComponentClass).appendScopedStyle(scopedCssString, styleId);
